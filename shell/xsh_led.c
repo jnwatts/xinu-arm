@@ -99,3 +99,18 @@ shellcmd xsh_led(int nargs, char *args[])
 
     return 0;
 }
+
+void ledOn();
+void ledOff();
+
+shellcmd xsh_ledon(int argc, char** argv)
+{
+	ledOn();
+	return 0;
+}
+
+shellcmd xsh_ledoff(int argc, char** argv)
+{
+	ledOff();
+	return 0;
+}
