@@ -48,7 +48,8 @@ interrupt uartInterrupt(void)
         }
 
         //handle whatever interrupt occurred
-        if(ris & PL011_RIS_TXRIS){ //if the transmitter FIFO ran out
+        if(ris & PL011_RIS_TXRIS) //if the transmitter FIFO ran out
+		{
             uartptr->oirq++; //increment output IRQ count
             regptr->icr |= PL011_ICR_TXIC; //clear transmitter interrupt
             count = 0;
@@ -73,8 +74,11 @@ interrupt uartInterrupt(void)
             else
             {
                 uartptr->oidle = TRUE;
+				signal(uartptr->osema);
             }
-        }else if(ris & PL011_RIS_RXRIS){ //if the receiver FIFO is full
+        }
+		else if(ris & PL011_RIS_RXRIS) //if the receiver FIFO is full
+		{
             uartptr->iirq++; //increment input IRQ count
             count = 0;
             while ((regptr->fr & PL011_FR_RXFE) == 0) //while the receive FIFO is not empty
