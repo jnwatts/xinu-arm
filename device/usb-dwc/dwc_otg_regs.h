@@ -34,6 +34,7 @@
 #ifndef __DWC_OTG_REGS_H__
 #define __DWC_OTG_REGS_H__
 
+#include <stdint.h>
 #include "dwc_otg.h"
 
 /**

@@ -1,9 +1,14 @@
 //#include <common.h>
 #include <usb.h>
 //#include <malloc.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <usleep.h>
 #include "dwc_otg.h"
 #include "dwc_otg_regs.h"
 #include "dwc_otg_core_if.h"
+
+#define udelay(x) usleep(x)
 
 #undef DWC_OTG_DEBUG
 
@@ -1210,9 +1215,13 @@ uint32_t dwc_otg_get_prtpower(dwc_otg_core_if_t * core_if)
 
 void dwc_otg_set_prtpower(dwc_otg_core_if_t * core_if, uint32_t val)
 {
+#if 0
 	hprt0_data_t hprt0;
 	hprt0.d32 = dwc_read_reg32(core_if->host_if->hprt0);
 	hprt0.b.prtpwr = val;
+#else
+	(void)dwc_read_reg32(core_if->host_if->hprt0);
+#endif
 	dwc_write_reg32(core_if->host_if->hprt0, val);
 }
 
@@ -1226,17 +1235,25 @@ uint32_t dwc_otg_get_prtsuspend(dwc_otg_core_if_t * core_if)
 
 void dwc_otg_set_prtsuspend(dwc_otg_core_if_t * core_if, uint32_t val)
 {
+#if 0
 	hprt0_data_t hprt0;
 	hprt0.d32 = dwc_read_reg32(core_if->host_if->hprt0);
 	hprt0.b.prtsusp = val;
+#else
+	(void)dwc_read_reg32(core_if->host_if->hprt0);
+#endif
 	dwc_write_reg32(core_if->host_if->hprt0, val);
 }
 
 void dwc_otg_set_prtresume(dwc_otg_core_if_t * core_if, uint32_t val)
 {
+#if 0
 	hprt0_data_t hprt0;
 	hprt0.d32 = dwc_read_reg32(core_if->host_if->hprt0);
 	hprt0.b.prtres = val;
+#else
+	(void)dwc_read_reg32(core_if->host_if->hprt0);
+#endif
 	dwc_write_reg32(core_if->host_if->hprt0, val);
 }
 

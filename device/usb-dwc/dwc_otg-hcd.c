@@ -20,10 +20,45 @@
 
 //#include <common.h>
 #include <usb.h>
-#include <malloc.h>
+//#include <malloc.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <usleep.h>
+#include <string.h>
 #include "dwc_otg.h"
 #include "dwc_otg_regs.h"
 #include "dwc_otg_core_if.h"
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+# define cpu_to_le16(x)		(x)
+# define cpu_to_le32(x)		(x)
+# define cpu_to_le64(x)		(x)
+# define le16_to_cpu(x)		(x)
+# define le32_to_cpu(x)		(x)
+# define le64_to_cpu(x)		(x)
+# define cpu_to_be16(x)		uswap_16(x)
+# define cpu_to_be32(x)		uswap_32(x)
+# define cpu_to_be64(x)		uswap_64(x)
+# define be16_to_cpu(x)		uswap_16(x)
+# define be32_to_cpu(x)		uswap_32(x)
+# define be64_to_cpu(x)		uswap_64(x)
+#else
+# define cpu_to_le16(x)		uswap_16(x)
+# define cpu_to_le32(x)		uswap_32(x)
+# define cpu_to_le64(x)		uswap_64(x)
+# define le16_to_cpu(x)		uswap_16(x)
+# define le32_to_cpu(x)		uswap_32(x)
+# define le64_to_cpu(x)		uswap_64(x)
+# define cpu_to_be16(x)		(x)
+# define cpu_to_be32(x)		(x)
+# define cpu_to_be64(x)		(x)
+# define be16_to_cpu(x)		(x)
+# define be32_to_cpu(x)		(x)
+# define be64_to_cpu(x)		(x)
+#endif
+
+#define udelay(x) usleep(x)
+#define mdelay(x) sleep(x)
 
 #define STATUS_ACK_HLT_COMPL	0x23
 #define	CHANNEL 0
@@ -249,7 +284,7 @@ static int dwc_otg_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	int stat = 0;
 	__u16 bmRType_bReq;
 	__u16 wValue;
-	__u16 wIndex;
+	//__u16 wIndex;
 	__u16 wLength;
 	unsigned char data[32];
 	hprt0_data_t hprt0 = {.d32 = 0 };
@@ -261,7 +296,7 @@ static int dwc_otg_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 
 	bmRType_bReq  = cmd->requesttype | (cmd->request << 8);
 	wValue	      = cpu_to_le16 (cmd->value);
-	wIndex	      = cpu_to_le16 (cmd->index);
+	//wIndex	      = cpu_to_le16 (cmd->index);
 	wLength	      = cpu_to_le16 (cmd->length);
 
 	switch (bmRType_bReq) {
@@ -598,7 +633,9 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	hctsiz_data_t hctsiz;
 	dwc_otg_host_if_t *host_if = g_core_if.host_if;
 	dwc_otg_hc_regs_t *hc_regs = host_if->hc_regs[CHANNEL];
+#if 0
 	hcint_data_t hcint;
+#endif
 	hcint_data_t hcint_new;
 	/* For CONTROL endpoint pid should start with DATA1 */
 	int status_direction;
@@ -633,7 +670,11 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	hcchar.b.multicnt = 1; 
 
 	/* Remember original int status */
+#if 0
    	hcint.d32 = dwc_read_reg32(&hc_regs->hcint);
+#else
+	(void)dwc_read_reg32(&hc_regs->hcint);
+#endif
 
 	/* Set host channel enable after all other setup is complete. */
 	hcchar.b.chen = 1;
@@ -677,7 +718,11 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		hcchar.d32 = dwc_read_reg32(&hc_regs->hcchar);
 		hcchar.b.multicnt = 1; 
 
+#if 0
 		hcint.d32 = dwc_read_reg32(&hc_regs->hcint);
+#else
+		(void)dwc_read_reg32(&hc_regs->hcint);
+#endif
 
 		/* Set host channel enable after all other setup is complete. */
 		hcchar.b.chen = 1;
@@ -731,7 +776,11 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	hcchar.d32 = dwc_read_reg32(&hc_regs->hcchar);
 	hcchar.b.multicnt = 1; 
 
-   	hcint.d32 = dwc_read_reg32(&hc_regs->hcint);
+#if 0
+	hcint.d32 = dwc_read_reg32(&hc_regs->hcint);
+#else
+	(void)dwc_read_reg32(&hc_regs->hcint);
+#endif
 
 	/* Set host channel enable after all other setup is complete. */
 	hcchar.b.chen = 1;
