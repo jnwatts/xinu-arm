@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <testsuite.h>
-#include <mips.h>
 #include <safemem.h>
 #include <stdlib.h>
+
+#if USE_TLB
+#include <mips.h>
 
 /* Known values to use */
 #define TEST_LENGTH (4*PAGE_SIZE)
@@ -117,3 +119,5 @@ thread test_tlb(bool verbose)
 
     return OK;
 }
+
+#endif // USE_TLB
