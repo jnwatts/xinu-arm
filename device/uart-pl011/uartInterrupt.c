@@ -69,12 +69,12 @@ interrupt uartInterrupt(void)
             if (count)
             {
                 uartptr->cout += count;
+				signaln(uartptr->osem, count);
             }
             /* If no characters were written, set the output idle flag. */
             else
             {
                 uartptr->oidle = TRUE;
-				signal(uartptr->osema);
             }
         }
 		else if(ris & PL011_RIS_RXRIS) //if the receiver FIFO is full
