@@ -14,6 +14,11 @@
 
 extern int resdefer;
 
+static int uartInterruptDebug(struct uart *uartptr)
+{
+	return semcount(uartptr->osema);
+}
+
 /**
  * Decode hardware interrupt request from UART device.
  */
@@ -69,7 +74,9 @@ interrupt uartInterrupt(void)
             if (count)
             {
                 uartptr->cout += count;
-				signaln(uartptr->osem, count);
+				//kputc(SERIAL0, '%');
+				//uartInterruptDebug(uartptr);
+				signaln(uartptr->osema, count);
             }
             /* If no characters were written, set the output idle flag. */
             else

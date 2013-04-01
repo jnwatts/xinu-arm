@@ -3,6 +3,7 @@
 #
 #  $Id: Makefile 2132 2009-11-17 23:22:38Z brylow $
 
+#PLATFORM = arm-qemu
 PLATFORM = raspberry-pi
 
 DETAIL   = -DDETAIL
