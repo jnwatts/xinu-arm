@@ -74,9 +74,7 @@ interrupt uartInterrupt(void)
             if (count)
             {
                 uartptr->cout += count;
-				//kputc(SERIAL0, '%');
-				//uartInterruptDebug(uartptr);
-				signaln(uartptr->osema, count);
+				//signaln(uartptr->osema, count);
             }
             /* If no characters were written, set the output idle flag. */
             else
