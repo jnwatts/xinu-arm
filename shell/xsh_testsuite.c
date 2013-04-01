@@ -25,7 +25,7 @@ static void help(char *command);
  */
 shellcmd xsh_testsuite(int nargs, char *args[])
 {
-#if 1
+#if 0
     int i;
     bool verbose = FALSE;
     bool testall = TRUE;
@@ -63,7 +63,7 @@ shellcmd xsh_testsuite(int nargs, char *args[])
     return 0;
 }
 
-#if 1
+#if 0
 static void help(char *command)
 {
     int i;
