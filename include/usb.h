@@ -30,7 +30,8 @@
 #include <asm/cache.h>
 #include <usb_defs.h>
 #include <usbdescriptors.h>
-
+#include <device.h>
+#include <common2.h>
 /*
  * The EHCI spec says that we must align to at least 32 bytes.  However,
  * some platforms require larger alignment.
@@ -49,10 +50,79 @@
 #define USB_MAXCONFIG			8
 #define USB_MAXINTERFACES		8
 #define USB_MAXENDPOINTS		16
-#define USB_MAXCHILDREN			8	/* This is arbitrary */
+#define USB_MAXCHILDREN			3	/* This is arbitrary */
 #define USB_MAX_HUB			16
+#define USB_BUFSIZ	512
 
 #define USB_CNTL_TIMEOUT 100 /* 100ms timeout */
+
+#define debug_cond(cond, fmt, args...)		\
+	do {					\
+		if (cond)			\
+			printf(fmt, ##args);	\
+	} while (0)
+
+#define debug(fmt, args...)			\
+	debug_cond(_DEBUG, fmt, ##args)
+
+
+/*
+ * The ALLOC_CACHE_ALIGN_BUFFER macro is used to allocate a buffer on the
+ * stack that meets the minimum architecture alignment requirements for DMA.
+ * Such a buffer is useful for DMA operations where flushing and invalidating
+ * the cache before and after a read and/or write operation is required for
+ * correct operations.
+ *
+ * When called the macro creates an array on the stack that is sized such
+ * that:
+ *
+ * 1) The beginning of the array can be advanced enough to be aligned.
+ *
+ * 2) The size of the aligned portion of the array is a multiple of the minimum
+ *    architecture alignment required for DMA.
+ *
+ * 3) The aligned portion contains enough space for the original number of
+ *    elements requested.
+ *
+ * The macro then creates a pointer to the aligned portion of this array and
+ * assigns to the pointer the address of the first element in the aligned
+ * portion of the array.
+ *
+ * Calling the macro as:
+ *
+ *     ALLOC_CACHE_ALIGN_BUFFER(uint32_t, buffer, 1024);
+ *
+ * Will result in something similar to saying:
+ *
+ *     uint32_t    buffer[1024];
+ *
+ * The following differences exist:
+ *
+ * 1) The resulting buffer is guaranteed to be aligned to the value of
+ *    ARCH_DMA_MINALIGN.
+ *
+ * 2) The buffer variable created by the macro is a pointer to the specified
+ *    type, and NOT an array of the specified type.  This can be very important
+ *    if you want the address of the buffer, which you probably do, to pass it
+ *    to the DMA hardware.  The value of &buffer is different in the two cases.
+ *    In the macro case it will be the address of the pointer, not the address
+ *    of the space reserved for the buffer.  However, in the second case it
+ *    would be the address of the buffer.  So if you are replacing hard coded
+ *    stack buffers with this macro you need to make sure you remove the & from
+ *    the locations where you are taking the address of the buffer.
+ *
+ * Note that the size parameter is the number of array elements to allocate,
+ * not the number of bytes.
+ *
+ * This macro can not be used outside of function scope, or for the creation
+ * of a function scoped static buffer.  It can not be used to create a cache
+ * line aligned global buffer.
+ */
+ /* Type for `void *' pointers. */
+typedef unsigned long int uintptr_t;
+
+#define USB_PRINTF(fmt, args...)	debug_cond(USB_DEBUG, fmt, ##args)
+#define USB_HUB_PRINTF(fmt, args...)	debug_cond(USB_HUB_DEBUG, fmt, ##args)
 
 /*
  * This is the timeout to allow for submitting an urb in ms. We allow more
@@ -108,6 +178,11 @@ struct usb_device {
 	char	mf[32];			/* manufacturer */
 	char	prod[32];		/* product */
 	char	serial[32];		/* serial number */
+	
+	/* Pointers to associated strcuts */
+	device *dev;			/* Dev structure */
+	void *csr;				/* Control and status registers */
+	
 
 	/* Maximum packet size; one of: PACKET_SIZE_* */
 	int maxpacketsize;
@@ -212,7 +287,8 @@ int usb_kbd_deregister(void);
 
 #endif
 /* routines */
-int usb_init(void); /* initialize the USB Controller */
+/* int usb_init(void); initialize the USB Controller */
+devcall usbInit(device *devptr); 
 int usb_stop(void); /* stop the USB Controller */
 
 
@@ -401,7 +477,7 @@ void usb_hub_reset(void);
 int hub_port_reset(struct usb_device *dev, int port,
 			  unsigned short *portstat);
 
-struct usb_device *usb_alloc_new_device(void *controller);
+struct usb_device *usb_alloc_new_device(device *devptr, void *controller);
 
 int usb_new_device(struct usb_device *dev);
 

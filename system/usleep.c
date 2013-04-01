@@ -24,4 +24,14 @@ void usleep(ulong usec)
     clkdelay((usec * platform.clkfreq) / CLKTICKS_PER_SEC);
 }
 
+
+/**
+ * Sleep for N miliseconds
+ */
+void mdelay(unsigned long msec)
+{
+	while (msec--)
+		usleep(1000);
+}
+
 #endif                          /* RTCLOCK */

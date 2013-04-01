@@ -7,5 +7,7 @@
 #define _USLEEP_H_
 
 void usleep(ulong usec);
+void mdelay(unsigned long msec);
+
 
 #endif                          /* _USLEEP_H_ */
