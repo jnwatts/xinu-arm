@@ -45,6 +45,9 @@
 #include <usb.h>
 #include <usleep.h>
 #include <common2.h>
+#include <asm/types.h>
+#include <unaligned/generic.h>
+#include <unaligned/le_byteshift.h>
 
 #ifdef DEBUG
 #define USB_DEBUG	1

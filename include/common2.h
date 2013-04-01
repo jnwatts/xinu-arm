@@ -1,7 +1,7 @@
 
 
-#ifndef __COMMON_H_
-#define __COMMON_H_	1
+#ifndef __COMMON2_H_
+#define __COMMON2_H_	1
 
 
 /*
@@ -111,8 +111,55 @@
 	static type *name = (type *)__##name
 #define DEFINE_CACHE_ALIGN_BUFFER(type, name, size)			\
 	DEFINE_ALIGN_BUFFER(type, name, size, ARCH_DMA_MINALIGN)
-	
-#define get_unaligned	__get_unaligned_be
-#define put_unaligned	__put_unaligned_be
-	
+
+#define get_unaligned  __get_unaligned_le
+#define put_unaligned  __put_unaligned_le
+
+#define __force __attribute__((force))
+
+#define isprint(x) (1)
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+# define cpu_to_le16(x)		(x)
+# define cpu_to_le32(x)		(x)
+# define cpu_to_le64(x)		(x)
+# define le16_to_cpu(x)		(x)
+# define le32_to_cpu(x)		(x)
+# define le64_to_cpu(x)		(x)
+# define cpu_to_be16(x)		uswap_16(x)
+# define cpu_to_be32(x)		uswap_32(x)
+# define cpu_to_be64(x)		uswap_64(x)
+# define be16_to_cpu(x)		uswap_16(x)
+# define be32_to_cpu(x)		uswap_32(x)
+# define be64_to_cpu(x)		uswap_64(x)
+#else
+# define cpu_to_le16(x)		uswap_16(x)
+# define cpu_to_le32(x)		uswap_32(x)
+# define cpu_to_le64(x)		uswap_64(x)
+# define le16_to_cpu(x)		uswap_16(x)
+# define le32_to_cpu(x)		uswap_32(x)
+# define le64_to_cpu(x)		uswap_64(x)
+# define cpu_to_be16(x)		(x)
+# define cpu_to_be32(x)		(x)
+# define cpu_to_be64(x)		(x)
+# define be16_to_cpu(x)		(x)
+# define be32_to_cpu(x)		(x)
+# define be64_to_cpu(x)		(x)
+#endif
+
+#if BYTE_ORDER == LITTLE_ENDIAN
+#define cpu_to_le64s(x) do { (void)(x); } while (0)
+#define le64_to_cpus(x) do { (void)(x); } while (0)
+#define cpu_to_le32s(x) do { (void)(x); } while (0)
+#define le32_to_cpus(x) do { (void)(x); } while (0)
+#define cpu_to_le16s(x) do { (void)(x); } while (0)
+#define le16_to_cpus(x) do { (void)(x); } while (0)
+#define cpu_to_be64s(x) swab64s((x))
+#define be64_to_cpus(x) swab64s((x))
+#define cpu_to_be32s(x) swab32s((x))
+#define be32_to_cpus(x) swab32s((x))
+#define cpu_to_be16s(x) swab16s((x))
+#define be16_to_cpus(x) swab16s((x))
+#endif
+
 #endif

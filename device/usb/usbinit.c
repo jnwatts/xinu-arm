@@ -1,3 +1,6 @@
+#define printf kprintf
+
+
 /**
 * @file usbinit.c
 *
@@ -60,6 +63,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <usleep.h>
+#include <common2.h>
+#include <asm/types.h>
+#include <unaligned/generic.h>
+#include <unaligned/le_byteshift.h>
 
 #ifdef DEBUG
 #define USB_DEBUG	1
@@ -88,7 +95,7 @@ devcall usbInit(device *devptr)
 	struct usb_device *usbptr;
 	
 	
-	/* usb_hub_reset(); */
+	usb_hub_reset();
 	
 	/* zero all devices */
 	for(i = 0; i < NUSB; i++) {
@@ -247,7 +254,7 @@ int usb_maxpacket(struct usb_device *dev, unsigned long pipe)
  *
  * NOTE: Similar behaviour was observed with GCC4.6 on ARMv5.
  */
-static void noinline; /* not sure about this */
+static void __attribute__ ((noinline))
 usb_set_maxpacket_ep(struct usb_device *dev, int if_idx, int ep_idx)
 {
 	int b;
