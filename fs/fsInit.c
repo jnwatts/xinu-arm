@@ -5,7 +5,7 @@
 #include <filesystem.h>
 
 ObjectHeader RootDir;
-List ObjectTypes;
+ObjectType ObjectTypes;
 
 void AddObjectType(ObjectType* type)
 {
