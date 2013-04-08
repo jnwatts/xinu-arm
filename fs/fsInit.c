@@ -5,7 +5,7 @@
 #include <filesystem.h>
 
 ObjectHeader RootDir;
-ObjectType ObjectTypes;
+ObjectType ObjectTypes[NFSTYPES];
 
 void AddObjectType(ObjectType* type)
 {
@@ -14,13 +14,7 @@ void AddObjectType(ObjectType* type)
 	ListAdd(&ObjectTypes, newType);
 }
 
-int (*getInfo)(ObjectHeader* obj);
-int (*openObj)(ObjectHeader* obj, char* path, char* reparsePath, ObjectHeader** newObj);
-int (*enumEntries)(ObjectHeader* obj, int index, char* buffer, int bufferLen);
-int (*deleteObj)(ObjectHeader* obj);
-int (*close)(ObjectHeader* obj);
-
-void OpenObject(char* path, ObjectHeader** newObj)
+errcode OpenObject(char* path, ObjectHeader** newObj)
 {
 	char pathCopy[MAXPATH];
 	strcpy(pathCopy, path);
@@ -28,7 +22,42 @@ void OpenObject(char* path, ObjectHeader** newObj)
 
 }
 
+ObjectHeader* AllocateObjectHeader(int extraBytes)
+{
+
+}
+
+int fsNative_getInfo(ObjectHeader* obj)
+{
+
+}
+
+int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
+{
+
+}
+
+int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer, int bufferLen)
+{
+
+}
+
+int fsNative_deleteObj(ObjectHeader* obj)
+{
+
+}
+
+int fsNative_close(ObjectHeader* obj)
+{
+
+}
+
 void fsInit()
 {
 	ListInit(&OpenObjects);
+
+	ObjectType type = 
+	{
+		typeId = FSTYPE_NATIVE,
+		getInfo = 
 }

@@ -74,7 +74,7 @@ interrupt uartInterrupt(void)
             if (count)
             {
                 uartptr->cout += count;
-				//signaln(uartptr->osema, count);
+				signaln(uartptr->osema, count);
             }
             /* If no characters were written, set the output idle flag. */
             else
@@ -82,7 +82,7 @@ interrupt uartInterrupt(void)
                 uartptr->oidle = TRUE;
             }
         }
-		else if(ris & PL011_RIS_RXRIS) //if the receiver FIFO is full
+		if(ris & PL011_RIS_RXRIS) //if the receiver FIFO is full
 		{
             uartptr->iirq++; //increment input IRQ count
             count = 0;

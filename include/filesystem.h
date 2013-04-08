@@ -4,12 +4,20 @@
 #define MAXPATH 256
 #define MAXNAME 26
 
-#define NTYPES 3
+#define NFSTYPES 3
 
-#define REPARSE_PATH
+#define FSTYPE_NATIVE	1
+#define FSTYPE_DEV		2
+#define FSTYPE_THREAD	3
 
+#define ERR_REPARSE_PATH	-100
+#define ERR_FILE_NOT_FOUND	-101
+#define ERR_ACCESS_DENIED	-102
+
+// Contains information about an object, as returned by a file system driver
 typedef struct
 {
+	long creationDate;
 	long lastOpenDate;
 	long lastWriteDate;
 } ObjectInfo;
