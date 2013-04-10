@@ -25,9 +25,9 @@ typedef struct
 typedef struct
 {
 	int typeId;
-	int (*getInfo)(ObjectHeader* obj);
+	int (*getInfo)(ObjectHeader* obj, ObjectInfo* info);
 	int (*openObj)(ObjectHeader* obj, char* path, ObjectHeader** newObj);
-	int (*enumEntries)(ObjectHeader* obj, int index, char* buffer, int bufferLen);
+	int (*enumEntries)(ObjectHeader* obj, int index, int* isDir, char* buffer, int bufferLen);
 	int (*deleteObj)(ObjectHeader* obj);
 	int (*close)(ObjectHeader* obj);
 } ObjectType;
@@ -36,13 +36,14 @@ typedef struct
 {
 	int objType;
 	char objName[MAXNAME];
+	int handleCount;
 	int extraBytes;
 } ObjectHeader;
 
 typedef struct
 {
-	
-} BuiltInObject;
+	List children;
+} fsNative_Dir;
 
 extern ObjectHeader RootDir;
 extern ObjectType ObjectTypes[];
