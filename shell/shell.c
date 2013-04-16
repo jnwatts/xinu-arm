@@ -19,6 +19,11 @@
 #include <conf.h>
 
 const struct centry commandtab[] = {
+/*    {"printtos", FALSE, xsh_printtos},
+    {"printprocstks", FALSE, xsh_printprocstks},
+    {"ledon", FALSE, xsh_ledon},
+    {"ledoff", FALSE, xsh_ledoff},
+*/
 #if NETHER
     {"arp", FALSE, xsh_arp},
 #endif
@@ -92,7 +97,20 @@ const struct centry commandtab[] = {
     {"?", FALSE, xsh_help}
 };
 
+typedef struct {
+	int size;
+	char* com[SHELL_BUFLEN];
+}historyTab;
+
+
 const ulong ncommand = sizeof(commandtab) / sizeof(struct centry);
+
+// History Stuff
+int histIndex = 0;	// index in read
+int curHistIndex = 0;	// index to overwrite for next command
+#define MAX_HISTORY 5
+historyTab history[MAX_HISTORY];
+
 
 /**
  * The Xinu shell.  Provides an interface to execute commands.
@@ -112,6 +130,8 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
     syscall child;              /* pid of child thread      */
     ushort i, j;                /* temp variables           */
     irqmask im;                 /* interrupt mask state     */
+
+    //historyTab hist[MAX_HISTORY];
 
     /* hostname variables */
     char hostnm[NET_HOSTNM_MAXLEN + 1]; /* hostname of backend      */
@@ -179,17 +199,25 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
         }
 
         /* Setup proper tty modes for input and output */
-        control(stdin, TTY_CTRL_CLR_IFLAG, TTY_IRAW, NULL);
-        control(stdin, TTY_CTRL_SET_IFLAG, TTY_ECHO, NULL);
+        //control(stdin, TTY_CTRL_CLR_IFLAG, TTY_IRAW, NULL);
+	control(stdin, TTY_CTRL_SET_IFLAG, TTY_IRAW, NULL);
+        //control(stdin, TTY_CTRL_SET_IFLAG, TTY_ECHO, NULL);
+	control(stdin, TTY_CTRL_CLR_IFLAG, TTY_ECHO, NULL);
 
         /* Read command */
-        buflen = read(stdin, buf, SHELL_BUFLEN - 1);
+        buflen = shellRead(stdin, buf, SHELL_BUFLEN - 1);
+
+	printf("\n");
+	//printf("%u\n", buflen);
+	
+	//if (buf[buflen-1] == '\t')
+	//	printf("tab read \n");
 
         /* Check for EOF and exit gracefully if seen */
         if (EOF == buflen)
         {
             break;
-        }
+    	}
 
         /* Parse line input into tokens */
         if (SYSERR == (ntok = lexan(buf, buflen, &tokbuf[0], &tok[0])))
@@ -363,4 +391,148 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
     fprintf(stdout, SHELL_EXIT);
     sleep(10);
     return OK;
+}
+
+int shellRead(int dev, char * buf, uint len){
+	int count = 0;
+	//int charRead = 0;
+	int ch = 0;
+	bool q = FALSE;
+	do{
+		read(dev, buf + count, 1);
+		ch = buf[count];
+		
+		switch (ch)
+		{
+			// backspace or delete
+			case '\b':
+			case 0x7F:
+				if ( count > 0 ){
+					count--;
+					//buf[index] == ' ';
+					putc(dev, '\b');
+					putc(dev, ' ');
+					putc(dev, '\b');
+				}
+				break;
+			// carraige return
+			case '\r':
+				q = TRUE;
+				buf[count] = '\n';
+				count++;
+				break;
+			// tab
+			case '\t':
+				/*	tab complete stuff	*/
+				break;
+			// escape
+			case 0x1B:
+				read(dev, buf + count, 1);
+				// check for [ character
+				if (buf[count] == 0x5b){
+					read(dev, buf + count, 1);
+					int c = buf[count];
+					int tmp = 0;
+					switch (c)
+					{
+						case 0x41://Up Arrow
+							history[histIndex].size = count;
+							memcpy(history[histIndex].com, buf, SHELL_BUFLEN);
+
+							histIndex = (histIndex + MAX_HISTORY - 1) % MAX_HISTORY;
+							
+							//tmp = 0;
+							while (tmp < count){
+								putc(dev, '\b');
+								tmp++;
+							}
+							tmp = 0;
+							while (tmp < count){
+								putc(dev, ' ');
+								tmp++;
+							}
+							tmp = 0;
+							while (tmp < count){
+								putc(dev, '\b');
+								tmp++;
+							}
+
+							count = history[histIndex].size;
+							memcpy(buf, history[histIndex].com, SHELL_BUFLEN);
+
+							tmp = 0;
+							while (tmp < count){
+								if (buf[tmp] != '\n')
+									putc(dev, buf[tmp]);
+								else{
+									count--;
+									break;
+								}
+								tmp++;
+							}
+							
+							break;
+						case 0x42://Down Arrow
+							history[histIndex].size = count;
+							memcpy(history[histIndex].com, buf, SHELL_BUFLEN);
+
+							histIndex = (histIndex + 1) % MAX_HISTORY;
+							
+							//tmp = 0;
+							while (tmp < count){
+								putc(dev, '\b');
+								tmp++;
+							}
+							tmp = 0;
+							while (tmp < count){
+								putc(dev, ' ');
+								tmp++;
+							}
+							tmp = 0;
+							while (tmp < count){
+								putc(dev, '\b');
+								tmp++;
+							}
+
+							count = history[histIndex].size;
+							memcpy(buf, history[histIndex].com, SHELL_BUFLEN);
+
+							tmp = 0;
+							while (tmp < count){
+								if (buf[tmp] != '\n')
+									putc(dev, buf[tmp]);
+								else{
+									count--;
+									break;
+								}
+								tmp++;
+							}
+
+							break;
+						case 0x43://Right Arrow
+							break;
+						case 0x44://Left Arrow
+							break;
+						default:
+							break;
+					}
+				}
+				break;
+			default:
+				putc(dev, ch);
+				count++;
+				break;
+		}
+		
+	} while ( count < len && !q);
+
+	if (buf[count-1] == '\r')
+		buf[count-1] = '\n';
+
+	history[curHistIndex].size = count;
+	memcpy(history[curHistIndex].com, buf, SHELL_BUFLEN);
+	curHistIndex = (curHistIndex + 1) % MAX_HISTORY;
+	histIndex = curHistIndex;
+
+	return count;
 }
