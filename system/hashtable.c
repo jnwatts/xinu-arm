@@ -95,7 +95,7 @@ void HashRemove(HashTable* hash, int key)
 	}
 }
 
-void* HashGet(HashTable* hash, int key)
+errcode HashGet(HashTable* hash, int key, void** value)
 {
 	int i = key % hash->capacity;
 	int counter = 0;
@@ -105,6 +105,9 @@ void* HashGet(HashTable* hash, int key)
 		counter++;
 	}
 	if (hash->entries[i].filled && hash->entries[i].key == key)
-		return hash->entries[i].value;
-	return NULL;
+	{
+		*value = hash->entries[i].value;
+		return OK;
+	}
+	return SYSERR;
 }

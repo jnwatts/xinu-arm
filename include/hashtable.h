@@ -24,7 +24,7 @@ void HashInit(HashTable* table);
 void HashDelete(HashTable* hash);
 void HashPut(HashTable* hash, int key, void* value);
 void HashRemove(HashTable* hash, int key);
-void* HashGet(HashTable* hash, int key);
+errcode HashGet(HashTable* hash, int key, void** value);
 
 #ifdef __cplusplus
 }
