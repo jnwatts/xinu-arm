@@ -2,13 +2,26 @@
 // Contains an implementation of a useful linked list 
 // structure, designed to hold pointer-sized values.
 
-#include "list.h"
+#include "../include/list.h"
+#include <malloc.h>
+#include <string.h>
+#include <stddef.h>
+
+#ifndef OK
+#define OK 0
+#endif
+#ifndef SYSERR
+#define SYSERR -1
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void ListInit(List* header)
 {
 	header->count = 0;
 	header->next = NULL;
-	header->prev = NULL;
 }
 
 void ListAdd(List* header, void* item)
@@ -19,7 +32,7 @@ void ListAdd(List* header, void* item)
 	{
 		if (header->next == NULL)
 		{
-			header->next = malloc(sizeof(List));
+			header->next = (List*)malloc(sizeof(List));
 			header->next->count = 0;
 			header->next->next = NULL;
 		}
@@ -27,6 +40,55 @@ void ListAdd(List* header, void* item)
 		header = header->next;
 	}
 	header->entries[count] = item;
+}
+
+void ListInsert(List* header, int index, void* item)
+{
+	int count = header->count;
+	void* displaced;
+
+	// Just call add if this index is at the end
+	if (index >= count)
+	{
+		ListAdd(header, item);
+		return;
+	}
+
+	header->count++;
+	while (index >= ENTRIES_PER_LIST)
+	{
+		if (!header->next)
+		{
+			header->next = (List*)malloc(sizeof(List));
+			header->next->count = 0;
+			header->next->next = NULL;
+		}
+		count -= ENTRIES_PER_LIST;
+		index -= ENTRIES_PER_LIST;
+	}
+
+	// Insert into the first run
+	displaced = header->entries[ENTRIES_PER_LIST - 1];
+	memmove(&header->entries[index + 1], &header->entries[index], sizeof(void*) * (ENTRIES_PER_LIST - index - 1));
+
+	while (count > 0)
+	{
+		// Displace each run by 1
+		void* newDisplaced = header->entries[ENTRIES_PER_LIST - 1];
+		memmove(&header->entries[1], &header->entries[0], sizeof(void*) * (ENTRIES_PER_LIST - 1));
+		header->entries[0] = displaced;
+		displaced = newDisplaced;
+
+		count -= ENTRIES_PER_LIST;
+
+		if (!header->next)
+		{
+			header->next = (List*)malloc(sizeof(List));
+			header->next->count = 0;
+			header->next->next = NULL;
+		}
+		header = header->next;
+	}
 }
 
 int ListGet(List* header, int index, void** item)
@@ -60,7 +122,7 @@ void ListClear(List* header)
 	}
 }
 
-int ListRemoveAt(List* header, int index)
+void ListRemoveAt(List* header, int index)
 {
 	int totalCount = header->count;
 
@@ -93,3 +155,7 @@ int ListRemoveAt(List* header, int index)
 		
 	} while (header);
 }
+
+#ifdef __cplusplus
+}
+#endif

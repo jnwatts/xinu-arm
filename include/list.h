@@ -5,22 +5,33 @@
 #ifndef _LIST_H_
 #define _LIST_H_
 
-#include "stddef.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stddef.h>
 
 #define ENTRIES_PER_LIST 10
 
-typedef struct List_t
+struct List;
+
+typedef struct List
 {
 	int count;
 	void* entries[ENTRIES_PER_LIST];
-	List_t* next;
+	struct List* next;
 } List;
 
 void ListInit(List* header);
 void ListAdd(List* header, void* item);
+void ListInsert(List* header, int index, void* item);
 int ListGet(List* header, int index, void** item);
 int ListCount(List* header);
 void ListClear(List* header);
-int ListRemoveAt(List* header, int index);
+void ListRemoveAt(List* header, int index);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

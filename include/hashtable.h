@@ -1,6 +1,10 @@
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct HashEntry
 {
 	int filled;
@@ -21,5 +25,9 @@ void HashDelete(HashTable* hash);
 void HashPut(HashTable* hash, int key, void* value);
 void HashRemove(HashTable* hash, int key);
 void* HashGet(HashTable* hash, int key);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
