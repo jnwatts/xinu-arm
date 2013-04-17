@@ -46,7 +46,7 @@
 #define USB_ALTSETTINGALLOC		4
 #define USB_MAXALTSETTING		128	/* Hard limit */
 
-#define USB_MAX_DEVICE			32
+#define USB_MAX_DEVICE			5
 #define USB_MAXCONFIG			8
 #define USB_MAXINTERFACES		8
 #define USB_MAXENDPOINTS		16
@@ -59,7 +59,7 @@
 #define debug_cond(cond, fmt, args...)		\
 	do {					\
 		if (cond)			\
-			printf(fmt, ##args);	\
+			kprintf(fmt, ##args);	\
 	} while (0)
 
 #define debug(fmt, args...)			\
@@ -477,7 +477,7 @@ void usb_hub_reset(void);
 int hub_port_reset(struct usb_device *dev, int port,
 			  unsigned short *portstat);
 
-struct usb_device *usb_alloc_new_device(device *devptr, void *controller);
+struct usb_device *usb_alloc_new_device(void *controller);
 
 int usb_new_device(struct usb_device *dev);
 

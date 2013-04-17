@@ -1,4 +1,5 @@
 #define printf kprintf
+#define USB_PRINTF kprintf
 
 
 /**
@@ -67,6 +68,7 @@
 #include <asm/types.h>
 #include <unaligned/generic.h>
 #include <unaligned/le_byteshift.h>
+#include "../system/platforms/raspberry-pi/gpio.h"
 
 #ifdef DEBUG
 #define USB_DEBUG	1
@@ -76,8 +78,10 @@
 #define USB_HUB_DEBUG	0
 #endif
 
-/*NUSB as defined in config */
-struct usb_device usbtab[NUSB];
+/*USB_MAX_DEVICE as in usb.h 5 */
+static struct usb_device usbtab[USB_MAX_DEVICE];
+static int dev_index;
+static int asynch_allowed;
 
 char usb_started; /* flag to store if USB status is started/stopped */
 static int asynch_allowed;
@@ -89,22 +93,22 @@ static int asynch_allowed;
 devcall usbInit(device *devptr)
 {
 	void *ctrl;
-	int i;
+	int i, start_index = 0;
 	asynch_allowed = 1;
+	dev_index = 0;
 	/* a ptr to the usb */
 	struct usb_device *usbptr;
-	
 	
 	usb_hub_reset();
 	
 	/* zero all devices */
-	for(i = 0; i < NUSB; i++) {
+	for(i = 0; i < USB_MAX_DEVICE; i++) {
 		memset(&usbtab[i], 0, sizeof(struct usb_device));
 		usbtab[i].devnum = -1;
 	}
 	
 	/* call init low_level usb */
-	printf("USB Init:\n");
+	kprintf("USB Init:\n");
 	if (usb_lowlevel_init(0, &ctrl)) {
 		printf("lowlevel init failed\n");
 		return -1;
@@ -114,14 +118,18 @@ devcall usbInit(device *devptr)
 	 * lowlevel init is OK, now scan the bus for devices
 	 * i.e. search HUBs and configure them
 	 */
+	start_index = dev_index;
 	printf("scanning bus for devices... \n");
-	usbptr = usb_alloc_new_device(devptr, ctrl);
+	usbptr = usb_alloc_new_device(ctrl);
 	
+	/* root hub must exist so add it */
 	if(usbptr)
 		usb_new_device(usbptr);
 		
+	if(start_index == dev_index)
+		kprintf("No USB Devices found\r\n");
 	else
-		printf("Couldn't create new device\n");
+		printf("%d USB Device(s) found\r\n", dev_index - start_index);
 		
 	usb_started = 1;
 	
@@ -401,23 +409,23 @@ static int usb_parse_config(struct usb_device *dev,
 /** returns a pointer of a new device structure or NULL, if
  * no device struct is available
  **/
-struct usb_device *usb_alloc_new_device(device *devptr, void *controller)
+struct usb_device *usb_alloc_new_device(void *controller)
 {
-	int i, dev_index;
-	
-	dev_index = devptr->minor;
-	printf("New Device %d\n", dev_index);
-	if (dev_index == NUSB) {
-		printf("ERROR, too many USB Devices, max=%d\n", NUSB);
+	int i;
+	USB_PRINTF("New Device %d\n", dev_index);
+	if (dev_index == USB_MAX_DEVICE) {
+		printf("ERROR, too many USB Devices, max=%d\n", USB_MAX_DEVICE);
 		return NULL;
 	}
-	usbtab[dev_index].devnum = dev_index;
+	/* default Address is 0, real addresses start with 1 */
+	usbtab[dev_index].devnum = dev_index + 1;
 	usbtab[dev_index].maxchild = 0;
 	for (i = 0; i < USB_MAXCHILDREN; i++)
 		usbtab[dev_index].children[i] = NULL;
 	usbtab[dev_index].parent = NULL;
 	usbtab[dev_index].controller = controller;
-	return &usbtab[dev_index];
+	dev_index++;
+	return &usbtab[dev_index - 1];
 }
 
 /********************************************************************
@@ -775,10 +783,10 @@ int usb_new_device(struct usb_device *dev)
 	USB_PRINTF("Product      %s\n", dev->prod);
 	USB_PRINTF("SerialNumber %s\n", dev->serial);
 	/* now prode if the device is a hub */
+
+
 	usb_hub_probe(dev, 0);
 	return 0;
 }
-
-
 
 
