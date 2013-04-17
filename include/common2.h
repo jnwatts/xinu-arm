@@ -28,7 +28,7 @@
 #define debug_cond(cond, fmt, args...)		\
 	do {					\
 		if (cond)			\
-			printf(fmt, ##args);	\
+			kprintf(fmt, ##args);	\
 	} while (0)
 
 #define debug(fmt, args...)			\
