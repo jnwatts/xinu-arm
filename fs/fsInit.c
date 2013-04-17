@@ -1,6 +1,7 @@
 // Xinu Filesystem Management
 // By Zachary Northrup
 
+#include <stdlib.h>
 #include <device.h>
 #include <filesystem.h>
 

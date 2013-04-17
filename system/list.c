@@ -3,7 +3,7 @@
 // structure, designed to hold pointer-sized values.
 
 #include "../include/list.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 
