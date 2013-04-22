@@ -394,10 +394,11 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
 }
 
 int shellRead(int dev, char * buf, uint len){
-	int count = 0;
-	//int charRead = 0;
-	int ch = 0;
-	bool q = FALSE;
+	int count = 0;	//# of characters read
+	int cLoc = 0; 	//cursor location
+	int ch = 0;	//character for swtich comparison later
+	int overwrite = 0; //character for overwriting with left arrow
+	bool q = FALSE;	//break boolean to see if \r has been entered
 	do{
 		read(dev, buf + count, 1);
 		ch = buf[count];
@@ -409,10 +410,31 @@ int shellRead(int dev, char * buf, uint len){
 			case 0x7F:
 				if ( count > 0 ){
 					count--;
-					//buf[index] == ' ';
-					putc(dev, '\b');
-					putc(dev, ' ');
-					putc(dev, '\b');
+					cLoc--;
+					if (count == cLoc){
+						putc(dev, '\b');
+						putc(dev, ' ');
+						putc(dev, '\b');
+					}
+					else{
+						int tmp = cLoc+1;
+						while (tmp <= count){
+							buf[tmp-1] = buf[tmp];
+							tmp++;
+						}
+						tmp = cLoc;
+						putc(dev, '\b');
+						while (tmp < count){
+							putc(dev, buf[tmp]);
+							tmp++;
+						}
+						putc(dev, ' ');
+						putc(dev, '\b');
+						while (tmp > cLoc){
+							putc(dev, '\b');
+							tmp--;
+						}
+					}
 				}
 				break;
 			// carraige return
@@ -420,6 +442,7 @@ int shellRead(int dev, char * buf, uint len){
 				q = TRUE;
 				buf[count] = '\n';
 				count++;
+				cLoc++;
 				break;
 			// tab
 			case '\t':
@@ -441,7 +464,7 @@ int shellRead(int dev, char * buf, uint len){
 
 							histIndex = (histIndex + MAX_HISTORY - 1) % MAX_HISTORY;
 							
-							//tmp = 0;
+							
 							while (tmp < count){
 								putc(dev, '\b');
 								tmp++;
@@ -470,7 +493,8 @@ int shellRead(int dev, char * buf, uint len){
 								}
 								tmp++;
 							}
-							
+							cLoc = count;
+
 							break;
 						case 0x42://Down Arrow
 							history[histIndex].size = count;
@@ -507,20 +531,53 @@ int shellRead(int dev, char * buf, uint len){
 								}
 								tmp++;
 							}
+							cLoc = count;
 
 							break;
 						case 0x43://Right Arrow
+							if (cLoc < count){
+								putc(dev, buf[cLoc]);
+								cLoc++;
+							}
 							break;
 						case 0x44://Left Arrow
+							if (cLoc > 0){
+								putc(dev, '\b');
+								cLoc--;
+							}
 							break;
 						default:
+							//putc(dev, c);
 							break;
 					}
 				}
 				break;
 			default:
+				//count++;
+				//cLoc++;
 				putc(dev, ch);
+				overwrite = buf[count];
+				if (cLoc < count){
+					int temp = count+1;
+					while (temp >= cLoc){
+						buf[temp+1] = buf[temp];
+						temp--;
+					}
+					buf[cLoc] = overwrite;
+					temp+=2;
+
+					while (temp <= count){
+						putc(dev, buf[temp]);
+						temp++;
+					}
+
+					while (temp > cLoc+1){
+						putc(dev, '\b');
+						temp--;
+					}
+				}
 				count++;
+				cLoc++;
 				break;
 		}
 		
