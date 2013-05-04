@@ -56,6 +56,7 @@ extern const ulong ncommand;               /**< number of commands in table   */
 thread shell(int, int, int);
 short lexan(char *, ushort, char *, char *[]);
 shellcmd xsh_arp(int, char *[]);
+shellcmd xsh_usbStart(int, char *[]);
 shellcmd xsh_clear(int, char *[]);
 shellcmd xsh_dumptlb(int, char *[]);
 shellcmd xsh_date(int, char *[]);

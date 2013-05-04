@@ -30,6 +30,8 @@
 #include <syscall.h>
 #include <safemem.h>
 
+#include <usb.h>
+
 #include <uart.h> //DEBUG
 
 
@@ -263,6 +265,8 @@ static int sysinit(void)
     mailboxInit();
 #endif
 
+	misc_init_r();
+
 #if NDEVS //NOTE, nonzero on PI
     for (i = 0; i < NDEVS; i++)
     {
@@ -289,7 +293,7 @@ static int sysinit(void)
 #endif
 
     kprintf("done with sysinit()\r\n");
-
+	/*usb_init();*/
     return OK;
 }
 

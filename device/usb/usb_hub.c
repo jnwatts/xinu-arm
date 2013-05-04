@@ -107,7 +107,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	unsigned pgood_delay = hub->desc.bPwrOn2PwrGood * 2;
 
 	dev = hub->pusb_dev;
-	
+	#if 0
 	if(dev->devnum == 1) {
 		USB_HUB_PRINTF("Powering on LAN9512\r\n");
 		
@@ -135,7 +135,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		#endif
 		
 	}
-	
+	#endif
 
 	/* Enable power to the ports */
 	USB_HUB_PRINTF("enabling power on all ports\r\n");
@@ -261,7 +261,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	/* Reset the port */
 	if (hub_port_reset(dev, port, &portstatus) < 0) {
-		printf("cannot reset port %i!?\r\n", port + 1);
+		kprintf("cannot reset port %i!?\r\n", port + 1);
 		return;
 	}
 
