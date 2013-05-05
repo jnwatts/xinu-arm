@@ -48,20 +48,57 @@ int resched(void)
         insert(thrcurrent, readylist, throld->prio);
     }
 
-    /* get highest priority thread from ready list */
-    thrcurrent = dequeue(readylist);
-    thrnew = &thrtab[thrcurrent];
-    thrnew->state = THRCURR;
+	/* get highest priority thread from ready list */
+	thrcurrent = dequeue(readylist);
+	thrnew = &thrtab[thrcurrent];
+	thrnew->state = THRCURR;
+	if (0) {
+			kprintf("%s -> %s\n", throld->name, thrnew->name);
+		//if (throld == &thrtab[0]) {
+			register int sp asm("sp");
+			kprintf("Current thread's SP: %4x\n", sp);
+			kprintf("New thread's SP: %4x\n", thrnew->stkptr);
+		//}
 
-    /* change address space identifier to thread id */
-    asid = thrcurrent & 0xff;
+			int *orig_sp = (int *)thrnew->stkptr;
+			int i = 0;
+			kprintf("pc: %4x\n", orig_sp[i++]);
+			kprintf("lr: %4x\n", orig_sp[i++]);
+			kprintf("ip: %4x\n", orig_sp[i++]);
+
+			//int i = 0;
+			//for (i = 0; i < 5; i++)
+				//kprintf(" %4x: %4x\n", orig_sp + i*sizeof(int), ((int*)orig_sp)[i]);
+		if (thrnew == &thrtab[0]) {
+			kprintf("\n");
+		}
+	}
+
+	if (thrnew != throld) {
+
 #if 0
-  // XXX Fix this later?
-  asm("mtc0 %0, $10": :"r"(asid));
+		if (throld->name && thrnew->name)
+			kprintf("%s -> %s\n", throld->name, thrnew->name);
+		else
+			kprintf("INVALID THREAD NAME\n");
 #endif
 
-    restore(thrnew->intmask);
-    ctxsw(&throld->stkptr, &thrnew->stkptr);
+		/* change address space identifier to thread id */
+		asid = thrcurrent & 0xff;
+	#if 0
+	  // XXX Fix this later?
+	  asm("mtc0 %0, $10": :"r"(asid));
+	#endif
+
+		restore(thrnew->intmask);
+		ctxsw(&throld->stkptr, &thrnew->stkptr);
+	}
+	#if 0
+	if (throld == &thrtab[0]) {
+		register int sp asm("sp");
+		kprintf("returned to prnull's sp: %4x\n", sp);
+	}
+	#endif
 
     /* old thread returns here when resumed */
     restore(throld->intmask);
