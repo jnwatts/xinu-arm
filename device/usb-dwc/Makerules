@@ -1,0 +1,12 @@
+# This Makefile contains rules to build files in the device/usb-dwc/ directory.
+
+# Name of this component (the directory this file is stored in)
+COMP = device/usb-dwc
+
+# Source files for this component
+C_FILES = dwc_otg.c dwc_otg-hcd.c
+S_FILES = 
+
+# Add the files to the compile source path
+DIR = ${TOPDIR}/${COMP}
+COMP_SRC += ${S_FILES:%=${DIR}/%} ${C_FILES:%=${DIR}/%}
