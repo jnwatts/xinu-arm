@@ -51,9 +51,6 @@ interrupt uartInterrupt(void)
         if(ris & PL011_RIS_TXRIS){ //if the transmitter FIFO ran out
             uartptr->oirq++; //increment output IRQ count
             regptr->icr |= PL011_ICR_TXIC; //clear transmitter interrupt
-	     /*signal(uartptr->osema);*/
-	     /*printf("semacount: %d\n", semcount(uartptr->osema));*/
-	     /*printf("ocount: 0x%8X\n", (*uartptr).ocount);*/
             count = 0;
             if (uartptr->ocount > 0) //if we have bytes in the buffer
             {
@@ -71,20 +68,13 @@ interrupt uartInterrupt(void)
             if (count)
             {
                 uartptr->cout += count;
-		  /*printf("signaling: %d\n",count);*/
-		  /*signaln(uartptr->osema,count);*/
-		  /*signaln(uartptr->osema, count);*/
             }
             /* If no characters were written, set the output idle flag. */
             else
             {
                 uartptr->oidle = TRUE;
-		  
-		  
             }
-		/*printf("count: %d\n", count);*/
-	      /*printf("signaling: %d\n",count);*/
-            
+            signaln(uartptr->osema, count);
         }else if(ris & PL011_RIS_RXRIS){ //if the receiver FIFO is full
             uartptr->iirq++; //increment input IRQ count
             count = 0;
@@ -105,7 +95,6 @@ interrupt uartInterrupt(void)
                 }
             }
             uartptr->cin += count;
-	     /*printf("inputsema signal: %d\n", count);*/
             signaln(uartptr->isema, count);
         }
     }
