@@ -77,7 +77,7 @@
 #define __USBDESCRIPTORS_H__
 
 #include <asm/types.h>
-
+#include <kernel.h>
 /*
  * communications class types
  *
@@ -522,21 +522,21 @@ struct usb_class_descriptor {
 #ifdef DEBUG
 static inline void print_device_descriptor(struct usb_device_descriptor *d)
 {
-	serial_printf("usb device descriptor \n");
-	serial_printf("\tbLength %2.2x\n", d->bLength);
-	serial_printf("\tbDescriptorType %2.2x\n", d->bDescriptorType);
-	serial_printf("\tbcdUSB %4.4x\n", d->bcdUSB);
-	serial_printf("\tbDeviceClass %2.2x\n", d->bDeviceClass);
-	serial_printf("\tbDeviceSubClass %2.2x\n", d->bDeviceSubClass);
-	serial_printf("\tbDeviceProtocol %2.2x\n", d->bDeviceProtocol);
-	serial_printf("\tbMaxPacketSize0 %2.2x\n", d->bMaxPacketSize0);
-	serial_printf("\tidVendor %4.4x\n", d->idVendor);
-	serial_printf("\tidProduct %4.4x\n", d->idProduct);
-	serial_printf("\tbcdDevice %4.4x\n", d->bcdDevice);
-	serial_printf("\tiManufacturer %2.2x\n", d->iManufacturer);
-	serial_printf("\tiProduct %2.2x\n", d->iProduct);
-	serial_printf("\tiSerialNumber %2.2x\n", d->iSerialNumber);
-	serial_printf("\tbNumConfigurations %2.2x\n", d->bNumConfigurations);
+	kprintf("usb device descriptor \n");
+	kprintf("\tbLength %2.2x\n", d->bLength);
+	kprintf("\tbDescriptorType %2.2x\n", d->bDescriptorType);
+	kprintf("\tbcdUSB %4.4x\n", d->bcdUSB);
+	kprintf("\tbDeviceClass %2.2x\n", d->bDeviceClass);
+	kprintf("\tbDeviceSubClass %2.2x\n", d->bDeviceSubClass);
+	kprintf("\tbDeviceProtocol %2.2x\n", d->bDeviceProtocol);
+	kprintf("\tbMaxPacketSize0 %2.2x\n", d->bMaxPacketSize0);
+	kprintf("\tidVendor %4.4x\n", d->idVendor);
+	kprintf("\tidProduct %4.4x\n", d->idProduct);
+	kprintf("\tbcdDevice %4.4x\n", d->bcdDevice);
+	kprintf("\tiManufacturer %2.2x\n", d->iManufacturer);
+	kprintf("\tiProduct %2.2x\n", d->iProduct);
+	kprintf("\tiSerialNumber %2.2x\n", d->iSerialNumber);
+	kprintf("\tbNumConfigurations %2.2x\n", d->bNumConfigurations);
 }
 
 #else

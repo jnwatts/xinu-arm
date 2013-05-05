@@ -53,7 +53,7 @@ static void usb_kbd_setled2(struct usb_device *dev)
  * @param args   array of arguments
  * @return OK for success, SYSERR for syntax error
  */
-shellcmd xsh_usbStart(int nargs, char *args[])
+shellcmd xsh_kbdStart(int nargs, char *args[])
 {
     /* Check for correct number of arguments */
     if (nargs > 1)
@@ -63,14 +63,12 @@ shellcmd xsh_usbStart(int nargs, char *args[])
     }
     if (nargs == 1)
     {
-        if(usb_init() == 0)
-			kprintf("USB Started Successfully\n\r");
-		else
-			kprintf("USB Failed to start\r\n");@
+			kprintf("Polllll\r\n");
+			usb_kbd_generic_poll();
+			kprintf("Set the leds\r\n");
+			usb_kbd_setled2(usb_get_dev_index(3));
 		
     }
 
     return OK;
 }
-
-
