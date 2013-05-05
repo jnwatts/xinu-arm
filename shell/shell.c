@@ -108,6 +108,7 @@ const ulong ncommand = sizeof(commandtab) / sizeof(struct centry);
 // History Stuff
 int histIndex = 0;	// index in read
 int curHistIndex = 0;	// index to overwrite for next command
+int curHistElements = 1;// number of elements in history array
 #define MAX_HISTORY 5
 historyTab history[MAX_HISTORY];
 
@@ -208,10 +209,6 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
         buflen = shellRead(stdin, buf, SHELL_BUFLEN - 1);
 
 	printf("\n");
-	//printf("%u\n", buflen);
-	
-	//if (buf[buflen-1] == '\t')
-	//	printf("tab read \n");
 
         /* Check for EOF and exit gracefully if seen */
         if (EOF == buflen)
@@ -399,6 +396,9 @@ int shellRead(int dev, char * buf, uint len){
 	int ch = 0;	//character for swtich comparison later
 	int overwrite = 0; //character for overwriting with left arrow
 	bool q = FALSE;	//break boolean to see if \r has been entered
+	int cmdI = 0;	//command index for tab completion
+	int k = 0;	//index in command name string
+	int matchCount = 0;	//number of commands matched for tab completion
 	do{
 		read(dev, buf + count, 1);
 		ch = buf[count];
@@ -446,7 +446,35 @@ int shellRead(int dev, char * buf, uint len){
 				break;
 			// tab
 			case '\t':
-				/*	tab complete stuff	*/
+				while (cmdI < ncommand){
+					k = 0;
+					char * cmdname = commandtab[cmdI].name;
+					while (k < count){
+						if ( cmdname[k] != buf[k] )
+							break;
+						k++;
+					}
+					if (k == count && k != 0){
+						int tmp = count;
+						while ( tmp > 0 ){
+							putc(dev, '\b');
+							tmp--;
+						}
+						count = 0;
+						while (1) {
+							if (cmdname[count] == '\0')
+								break;
+							buf[count] = cmdname[count];
+							putc(dev, buf[count]);
+							count++;
+						}
+						cLoc = count;
+						break;
+					}
+					cmdI++;
+				}
+				cmdI = 0;
+				k = 0;
 				break;
 			// escape
 			case 0x1B:
@@ -462,7 +490,7 @@ int shellRead(int dev, char * buf, uint len){
 							history[histIndex].size = count;
 							memcpy(history[histIndex].com, buf, SHELL_BUFLEN);
 
-							histIndex = (histIndex + MAX_HISTORY - 1) % MAX_HISTORY;
+							histIndex = (histIndex + curHistElements - 1) % curHistElements;
 							
 							
 							while (tmp < count){
@@ -500,7 +528,7 @@ int shellRead(int dev, char * buf, uint len){
 							history[histIndex].size = count;
 							memcpy(history[histIndex].com, buf, SHELL_BUFLEN);
 
-							histIndex = (histIndex + 1) % MAX_HISTORY;
+							histIndex = (histIndex + 1) % curHistElements;
 							
 							//tmp = 0;
 							while (tmp < count){
@@ -585,11 +613,16 @@ int shellRead(int dev, char * buf, uint len){
 
 	if (buf[count-1] == '\r')
 		buf[count-1] = '\n';
-
-	history[curHistIndex].size = count;
-	memcpy(history[curHistIndex].com, buf, SHELL_BUFLEN);
-	curHistIndex = (curHistIndex + 1) % MAX_HISTORY;
-	histIndex = curHistIndex;
+	
+	if ( count > 1 ){
+		history[curHistIndex].size = count;
+		memcpy(history[curHistIndex].com, buf, SHELL_BUFLEN);
+		curHistElements++;
+		if (curHistElements > MAX_HISTORY)
+			curHistElements = MAX_HISTORY;
+		curHistIndex = (curHistIndex + 1) % curHistElements;
+		histIndex = curHistIndex;
+	}
 
 	return count;
 }
