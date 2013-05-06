@@ -197,6 +197,7 @@ static int sysinit(void)
     thrptr->stkptr = 0;
     thrptr->memlist.next = NULL;
     thrptr->memlist.length = 0;
+    strcpy(thrptr->currdir, "/");
     thrcurrent = NULLTHREAD;
 
     kprintf("&_end is 0x%x\r\n", &_end);
@@ -287,6 +288,8 @@ static int sysinit(void)
     gpioLEDOn(GPIO_LED_CISCOWHT);
 #endif
 #endif
+
+    fsInit();
 
     kprintf("done with sysinit()\r\n");
 

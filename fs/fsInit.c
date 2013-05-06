@@ -7,7 +7,7 @@
 #include <filesystem.h>
 #include <string.h>
 
-#define ARRAYSIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define ARRAYSIZE(arr) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 ObjectHeader* RootDir;
 ObjectType ObjectTypes[NFSTYPES];
@@ -50,7 +50,7 @@ errcode CloseObject(ObjectHeader* header)
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
 	ObjectHeader* header = NULL;
-	errcode result = OpenObject(path, &header, mode, access);
+	errcode result = OpenObject(path, NULL, &header, mode, access);
 	if (result < 0)
 		return result;
 
@@ -60,7 +60,7 @@ errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS acc
 errcode DeleteFile(char* path)
 {
 	ObjectHeader* header = NULL;
-	errcode err = OpenObject(path, &header, FSMODE_OPEN, FSACCESS_WRITE);
+	errcode err = OpenObject(path, NULL, &header, FSMODE_OPEN, FSACCESS_WRITE);
 	if (err < 0 || !header)
 		return err;
 
@@ -190,7 +190,7 @@ static void PreprocessPath(char* path)
 // Determines whether enumeration functions are called to validate sub-object naming
 #define ENUM_TO_OPEN
 
-errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
+errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
 	char pathCopy[MAXPATH + 1] = {0};
 	errcode err = OK;
@@ -215,6 +215,9 @@ errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS acce
 	// This also handles zero-length paths
 	if (!pathCopy[0])
 		return ERR_FILE_NOT_FOUND;
+
+	if (actualPath)
+		strcpy(actualPath, pathCopy);
 
 #ifdef CASE_INSENSITIVE
 	// Compare all strings as lower-case for case insensitivity
@@ -305,6 +308,20 @@ errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS acce
 	else
 	{
 		*newObj = currObj;
+	}
+
+	return err;
+}
+
+errcode ChangeWorkingDirectory(char* path)
+{
+	char* pathCopy = malloc(MAXPATH + 1);
+	ObjectHeader* header;
+	errcode err = OpenObject(path, pathCopy, &header, FSMODE_OPEN | FSMODE_DIR, FSMODE_READ);
+	if (!err)
+	{
+		strcpy(thrtab[thrcurrent].currdir, pathCopy);
+		CloseObject(header);
 	}
 
 	return err;

@@ -73,6 +73,7 @@ tid_typ create(void *procaddr, uint ssize, int priority,
     thrptr->hasmsg = FALSE;
     thrptr->memlist.next = NULL;
     thrptr->memlist.length = 0;
+    strcpy(thrptr->currdir, thrtab[thrcurrent].currdir);
 
     //TEB: this is hardcoded for ARM
     //This is to enable the timer interrupt

@@ -42,6 +42,9 @@ C_FILES += xsh_test.c xsh_testsuite.c
 # Printtos commands
 C_FILES += xsh_printtos.c
 
+# Filesystem commands
+C_FILES += xsh_cd.c xsh_pwd.c
+
 S_FILES =
 
 # Add the files to the compile source path

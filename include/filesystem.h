@@ -29,7 +29,10 @@ typedef enum
 {
 	FSMODE_OPEN = 0,
 	FSMODE_OPENORCREATE = 1,
-	FSMODE_CREATENEW = 2
+	FSMODE_CREATENEW = 2,
+
+	// OR with this flag to specify the creation of a directory rather than a file
+	FSMODE_DIR = 0x100
 } FSMODE;
 
 typedef enum
@@ -101,8 +104,9 @@ errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
 
 // Internal filesystem API
+void fsInit();
 fshandle CreateHandle(ObjectHeader* header);
-errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
+errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
 void AddObjectType(ObjectType* type);
 errcode CloseObject(ObjectHeader* header);
 

@@ -25,6 +25,9 @@ const struct centry commandtab[] = {
     {"ledon", FALSE, xsh_ledon},
     {"ledoff", FALSE, xsh_ledoff},
 
+    {"cd", TRUE, xsh_cd},
+    {"pwd", TRUE, xsh_pwd},
+
 #if NETHER
     {"arp", FALSE, xsh_arp},
 #endif
