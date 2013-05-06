@@ -47,6 +47,15 @@ typedef struct
 	long lastWriteDate;
 } ObjectInfo;
 
+// The most important structure in the filesystem subsystem, represents an FS object of some kind
+typedef struct
+{
+	int objType;
+	char objName[MAXNAME];
+	int refCount;
+	int extraBytes;
+} ObjectHeader;
+
 typedef struct
 {
 	int typeId;
@@ -76,14 +85,6 @@ typedef struct
 	// Notifies the type manager that the object has been closed.
 	int (*close)(ObjectHeader* obj);
 } ObjectType;
-
-typedef struct
-{
-	int objType;
-	char objName[MAXNAME];
-	int refCount;
-	int extraBytes;
-} ObjectHeader;
 
 typedef struct
 {
