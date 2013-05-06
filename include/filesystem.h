@@ -4,6 +4,11 @@
 #include "hashtable.h"
 #include "list.h"
 
+#define PATH_SEPARATOR '/'
+
+// Comment out this define to enable case sensitivity
+#define CASE_INSENSITIVE
+
 #define MAXPATH 256
 #define MAXNAME 26
 
@@ -16,6 +21,7 @@
 #define ERR_REPARSE_PATH	-100
 #define ERR_FILE_NOT_FOUND	-101
 #define ERR_ACCESS_DENIED	-102
+#define ERR_NO_MORE_ENTRIES	-103
 
 typedef int fshandle;
 
@@ -44,12 +50,30 @@ typedef struct
 typedef struct
 {
 	int typeId;
+
+	// Gets information about the given object.
 	int (*getInfo)(ObjectHeader* obj, ObjectInfo* info);
-	int (*openObj)(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
-	int (*enumEntries)(ObjectHeader* obj, int index, int* isDir, char* buffer, int bufferLen);
-	int (*readObj)(ObjectHeader* obj, char* buffer, int len, int flags);
-	int (*writeObj)(ObjectHeader* obj, char* buffer, int len, int flags);
+
+	// Opens an object with the specified name.
+	int (*openObj)(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
+
+	// Enumerates through the sub-objects of this object. 
+	//   Index is the index of the sub-object whose name to place into the buffer. 
+	//   The buffer should be of length MAXNAME.
+	//   Returns ERROR_NO_MORE_ENTRIES for indices that are out of range.
+	int (*enumEntries)(ObjectHeader* obj, int index, char* buffer);
+
+	// Reads the object at the given position, or reads the next bytes if the object is not a block device.
+	//   Returns the number of bytes read or zero if there are no more bytes to read.
+	int (*readObj)(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
+
+	// Writes the object at the given position, or writes the next bytes if the object is not a block device.
+	int (*writeObj)(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
+
+	// Notifies the type manager that all representations of the object should be deleted.
 	int (*deleteObj)(ObjectHeader* obj);
+
+	// Notifies the type manager that the object has been closed.
 	int (*close)(ObjectHeader* obj);
 } ObjectType;
 

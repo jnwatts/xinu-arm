@@ -6,6 +6,10 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 {
 	ObjectHeader* header = AllocateObjectHeader(sizeof(fsNative_Dir));
 	fsNative_Dir* dir = GetObjectCustomData(header);
+
+	strcpy(header->objName, path);
+	header->refCount = 1;
+
 	ListInit(dir->children);
 	return header;
 }
@@ -21,22 +25,35 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
 	for (int i = 0; i < dir->children.count; i++)
 	{
 		ObjectHeader* child;
-		ListGet(dir->children, i, child);
-		child->
+		ListGet(dir->children, i, &child);
+		if (!strcmp(child->objName, path))
+		{
+			child->refCount++;
+			*newObj = child;
+			return OK;
+		}
 	}
+	return ERR_FILE_NOT_FOUND;
 }
 
-int fsNative_enumEntries(ObjectHeader* obj, int index, int* isDir, char* buffer, int bufferLen)
+int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer)
 {
-	
+	fsNative_Dir dir = GetObjectCustomData(obj);
+	ObjectHeader* child = NULL;
+	if (index >= dir->children->count)
+		return ERR_NO_MORE_ENTRIES;
+
+	ListGet(dir->children, index, &child);
+	strcpy(buffer, child->objName);
+	return OK;
 }
 
 int fsNative_deleteObj(ObjectHeader* obj)
 {
-
+	return OK;
 }
 
 int fsNative_close(ObjectHeader* obj)
 {
-
+	return OK;
 }

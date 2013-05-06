@@ -75,6 +75,7 @@ struct thrent
     bool hasmsg;                /**< nonzero iff msg is valid           */
     struct memblock memlist;    /**< free memory list of thread         */
     int fdesc[NDESC];           /**< device descriptors for thread      */
+    char currdir[MAXPATH];      /**< working directory for thread       */
 };
 
 extern struct thrent thrtab[];

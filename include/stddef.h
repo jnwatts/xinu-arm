@@ -28,6 +28,8 @@ typedef void exchandler;        /**< exception procedure                */
 typedef int message;            /**< message passing content            */
 
 typedef int tid_typ;            /**< thread ID type                     */
+typedef int errcode;			/**< system error code					*/
+typedef long long fileptr;		/**< file position pointers				*/
 
 /* Boolean type and constants */
 #define FALSE        0          /**< boolean false                      */

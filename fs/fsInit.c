@@ -7,7 +7,7 @@
 
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
-ObjectHeader RootDir;
+ObjectHeader* RootDir;
 ObjectType ObjectTypes[NFSTYPES];
 HashTable OpenHandles;
 fshandle NextHandle;
@@ -26,7 +26,15 @@ errcode CloseFile(fshandle handle)
 	if (err < 0 || !header)
 		return err;
 
-	err = ObjectTypes[header->objType].close(header);
+	return CloseObject(header);
+}
+
+errcode CloseObject(ObjectHeader* header)
+{
+	if (!header)
+		return OK;
+
+	errcode err = ObjectTypes[header->objType].close(header);
 
 	// Decrement the reference count and delete the object if it isn't referenced by anyone
 	if (--header->refCount <= 0)
@@ -54,12 +62,21 @@ errcode DeleteFile(char* path)
 	if (err < 0 || !header)
 		return err;
 
-	ObjectTypes[header->objType].deleteObj(header);
+	err = ObjectTypes[header->objType].deleteObj(header);
 
-	if (header->refCount <= 0)
-		free(header);
+	return CloseObject(header);
+}
 
-	return OK;
+errcode CloseAndDeleteFile(fshandle handle)
+{
+	ObjectHeader* header = NULL;
+	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
+	if (err < 0 || !header)
+		return err;
+
+	err = ObjectTypes[header->objType].deleteObj(header);
+
+	return CloseObject(header);
 }
 
 errcode ReadFile(fshandle handle, char* buffer, int len)
@@ -68,8 +85,6 @@ errcode ReadFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-
-	ObjectTypes[header->objType].read
 }
 
 errcode WriteFile(fshandle handle, char* buffer, int len)
@@ -84,12 +99,213 @@ void AddObjectType(ObjectType* type)
 	ListAdd(&ObjectTypes, newType);
 }
 
+static void StrToLower(char* str)
+{
+	while (*str)
+	{
+		if (*str >= 'A' && *str <= 'Z')
+			*str = (char)((int)*str + (int)'a' - (int)'A');
+		str++;
+	}
+}
+
+static void StrToUpper(char* str)
+{
+	while (*str)
+	{
+		if (*str >= 'a' && *str <= 'z')
+			*str = (char)((int)*str + (int)'A' - (int)'a');
+		str++;
+	}
+}
+
+static int StrIndexOf(char* str, char chr)
+{
+	int result = 0;
+	while (*str && *str != chr)
+	{
+		str++;
+		result++;
+	}
+	return result;
+}
+
+// Cleans up a path by eliminating dots, double dots, and double slashes
+static void PreprocessPath(char* path)
+{
+	// segStart always moves forward faster than dest
+	char *dest, *segStart;
+	int segLength = 0;
+	dest = segStart = path;
+
+	while (*segStart)
+	{
+		// Find the next slash
+		segLength = StrIndexOf(segStart, PATH_SEPARATOR);
+
+		// Remove double-slashes
+		if (segLength == 0)
+		{
+			segStart++;
+		}
+		// Handle single dots by throwing them away
+		else if (segLength == 1 && memcmp(segStart, ".", 1))
+		{
+			segStart++;
+		}
+		// Handle double dots by moving back to the last slash
+		else if (segLength == 2 && memcmp(segStart, "..", 2))
+		{
+			// Find the last slash
+			char* lastSlash = dest - 1;
+			while (lastSlash >= path && lastSlash != PATH_SEPARATOR)
+			{
+				lastSlash--;
+			}
+
+			// If we hit the beginning of the buffer, the path is invalid
+			if (*lastSlash != PATH_SEPARATOR)
+			{
+				*path = 0;
+				return;
+			}
+
+			dest = lastSlash + 1;
+			segStart += 2;
+		}
+		// Handle normal path segments
+		else
+		{
+			*dest++ = PATH_SEPARATOR;
+			memmove(dest, segStart, segLength);
+			dest += segLength;
+			segStart += segLength;
+		}
+	}
+	*dest = 0;
+}
+
+// Determines whether enumeration functions are called to validate sub-object naming
+#define ENUM_TO_OPEN
+
 errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	char pathCopy[MAXPATH];
-	strcpy(pathCopy, path);
+	char pathCopy[MAXPATH + 1] = {0};
+	errcode err = OK;
 
+	*newObj = NULL;
 
+	// Copy the path onto the stack, prepending the working directory for relative paths
+	if (path[0] != PATH_SEPARATOR)
+	{
+		strcpy(pathCopy, thrtab[thrcurrent].currdir);
+		strcat(pathCopy, path);
+	}
+	else
+	{
+		strcpy(pathCopy, path);
+	}
+
+	// Put the path into the nice form "/thing/thing/thing/file" without dots or double-slashes
+	PreprocessPath(pathCopy);
+
+	// Preprocessing can indicate an invalid path by setting the first character to null
+	// This also handles zero-length paths
+	if (!pathCopy[0])
+		return ERR_FILE_NOT_FOUND;
+
+#ifdef CASE_INSENSITIVE
+	// Compare all strings as lower-case for case insensitivity
+	StrToLower(pathCopy);
+#endif
+
+	// Find the object referred to by the path
+	ObjectHeader* currObj = RootDir;
+	ObjectType* currObjType = &ObjectType[currObj->objType];
+
+	// Fake "opening" the root object, to allow it to be closed
+	currObj->refCount++;
+
+	char* currSeg = pathCopy;
+	char compareBuffer[MAXNAME + 1];
+	int segLength;
+	while (*currSeg)
+	{
+		// Advance past the path separator
+		currSeg++;
+
+		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
+		if (segLength == 0)
+		{
+			break;
+		}
+		
+#ifdef ENUM_TO_OPEN
+		int foundName = FALSE;
+		int index = 0;
+		do
+		{
+			err = currObjType->enumEntries(currObj, index, compareBuffer);
+			if (err == ERR_NO_MORE_ENTRIES)
+			{
+				err = ERR_FILE_NOT_FOUND;
+				break;
+			}
+			else if (err)
+				break;
+
+			if (strlen(compareBuffer) == segLength)
+			{
+#ifdef CASE_INSENSITIVE
+				StrToLower(compareBuffer);
+#endif
+
+				if (!memcmp(compareBuffer, currSeg, segLength))
+					foundName = TRUE;
+			}
+
+			index++;
+		} while (!foundName);
+
+		if (!foundName)
+		{
+			err = ERR_FILE_NOT_FOUND;
+			break;
+		}
+#else
+		// Copy the segment into a buffer as a string
+		strncpy(compareBuffer, currSeg, segLength);
+#endif
+
+		// Open the sub-object
+		ObjectHeader* nextObj = NULL;
+		err = currObjType->openObject(currObj, compareBuffer, &newObj, mode, access);
+		if (err || !nextObj)
+		{
+			err = err ? err : ERR_FILE_NOT_FOUND;
+			break;
+		}
+
+		// Close the current object and make the new object our current object
+		CloseObject(currObj);
+		currObj = nextObj;
+		currObjType = &ObjectTypes[currObj->objType];
+
+		// Advance to the next path segment
+		currSeg += segLength;
+	}
+
+	if (err)
+	{
+		if (currObj)
+			CloseObject(currObj);
+	}
+	else
+	{
+		*newObj = currObj;
+	}
+
+	return err;
 }
 
 ObjectHeader* AllocateObjectHeader(int extraBytes)
@@ -121,5 +337,5 @@ void fsInit()
 	AddObjectType(&type);
 
 	// Create the root directory
-	
+	RootDir = fsNative_CreateHeader("");
 }
