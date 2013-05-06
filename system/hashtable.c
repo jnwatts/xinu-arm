@@ -55,13 +55,13 @@ void HashPut(HashTable* hash, int key, void* value)
 {
 	int i = key % hash->capacity;
 	int counter = 0;
-	while (hash->entries[i].key != key && hash->entries[i].filled && counter < hash->count)
+	while (hash->entries[i].key != key && hash->entries[i].filled && counter < hash->capacity)
 	{
 		i = (i + 1) % hash->capacity;
 		counter++;
 	}
 
-	if (counter >= hash->count)
+	if (counter >= hash->capacity)
 	{
 		HashRehash(hash, hash->capacity * 2);
 		HashPut(hash, key, value);
@@ -83,7 +83,7 @@ void HashRemove(HashTable* hash, int key)
 {
 	int i = key % hash->capacity;
 	int counter = 0;
-	while (hash->entries[i].key != key && hash->entries[i].filled && counter < hash->count)
+	while (hash->entries[i].key != key && hash->entries[i].filled && counter < hash->capacity)
 	{
 		i = (i + 1) % hash->capacity;
 		counter++;
@@ -99,7 +99,7 @@ errcode HashGet(HashTable* hash, int key, void** value)
 {
 	int i = key % hash->capacity;
 	int counter = 0;
-	while (hash->entries[i].key != key && hash->entries[i].filled && counter < hash->count)
+	while (hash->entries[i].key != key && hash->entries[i].filled && counter < hash->capacity)
 	{
 		i = (i + 1) % hash->capacity;
 		counter++;

@@ -12,7 +12,7 @@
 ObjectHeader* RootDir;
 ObjectType ObjectTypes[NFSTYPES];
 HashTable OpenHandles;
-fshandle NextHandle;
+fshandle NextHandle = 1;
 
 fshandle CreateHandle(ObjectHeader* header)
 {
