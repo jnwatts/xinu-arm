@@ -7,7 +7,7 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 	ObjectHeader* header = AllocateObjectHeader(sizeof(fsNative_Dir));
 	fsNative_Dir* dir = GetObjectCustomData(header);
 
-	strcpy(header->objName, path);
+	strncpy(header->objName, path, MAXNAME);
 	header->refCount = 1;
 
 	ListInit(&dir->children);
@@ -26,7 +26,7 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
 	{
 		ObjectHeader* child;
 		ListGet(&dir->children, i, (void**)&child);
-		if (!strcmp(child->objName, path))
+		if (!strncmp(child->objName, path, MAXNAME))
 		{
 			child->refCount++;
 			*newObj = child;
@@ -44,7 +44,7 @@ int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer)
 		return ERR_NO_MORE_ENTRIES;
 
 	ListGet(&dir->children, index, (void**)&child);
-	strcpy(buffer, child->objName);
+	strncpy(buffer, child->objName, MAXNAME);
 	return OK;
 }
 
