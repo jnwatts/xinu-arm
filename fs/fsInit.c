@@ -40,7 +40,7 @@ errcode CloseObject(ObjectHeader* header)
 	kprintf("CloseObject(%d)\n", header);
 
 	if (!header)
-		return OK;
+		return SUCCESS;
 
 	errcode err = ObjectTypes[header->objType].close(header);
 
@@ -97,7 +97,7 @@ errcode ReadFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-	return OK;
+	return SUCCESS;
 }
 
 errcode WriteFile(fshandle handle, char* buffer, int len)
@@ -106,7 +106,7 @@ errcode WriteFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-	return OK;
+	return SUCCESS;
 }
 
 errcode EnumFiles(fshandle handle, int index, char* buffer)
@@ -232,7 +232,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
 	char pathCopy[MAXPATH + 1] = {0};
-	errcode err = OK;
+	errcode err = SUCCESS;
 
 	*newObj = NULL;
 
