@@ -23,7 +23,7 @@ fshandle CreateHandle(ObjectHeader* header)
 
 errcode CloseFile(fshandle handle)
 {
-	kprintf("CloseFile(%d)\n", handle);
+	//kprintf("CloseFile(%d)\n", handle);
 
 	ObjectHeader* header = NULL;
 	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
@@ -37,7 +37,7 @@ errcode CloseFile(fshandle handle)
 
 errcode CloseObject(ObjectHeader* header)
 {
-	kprintf("CloseObject(%d)\n", header);
+	//kprintf("CloseObject(%d)\n", header);
 
 	if (!header)
 		return SUCCESS;
@@ -55,7 +55,7 @@ errcode CloseObject(ObjectHeader* header)
 
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
-	kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
+	//kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
 
 	ObjectHeader* header = NULL;
 	errcode result = OpenObject(path, NULL, &header, mode, access);
@@ -230,7 +230,7 @@ static void PreprocessPath(char* path)
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
+	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
 	char pathCopy[MAXPATH + 1] = {0};
 	errcode err = SUCCESS;
@@ -241,6 +241,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	if (path[0] != PATH_SEPARATOR)
 	{
 		strncpy(pathCopy, thrtab[thrcurrent].currdir, MAXPATH);
+		strncat(pathCopy, "/");
 		strncat(pathCopy, path, MAXPATH);
 	}
 	else
@@ -282,11 +283,11 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
 		if (segLength == 0)
 		{
-			kprintf("done with path\n");
+			//kprintf("done with path\n");
 			break;
 		}
 
-		kprintf("Segment: %.*s\n", segLength, currSeg);
+		//kprintf("Segment: %.*s\n", segLength, currSeg);
 		
 #ifdef ENUM_TO_OPEN
 		int foundName = FALSE;
