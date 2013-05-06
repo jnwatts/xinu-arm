@@ -216,7 +216,7 @@ int hub_port_reset(struct usb_device *dev, int port,
 	}
 
 	if (tries == MAX_TRIES) {
-		USB_HUB_PRINTF("Cannot enable port %i after %i retries, " \
+		USB_HUB_PRINTF("Cannot enable port %d after %d retries, " \
 				"disabling port.\r\n", port + 1, MAX_TRIES);
 		USB_HUB_PRINTF("Maybe the USB cable is bad?\r\n");
 		return -1;
@@ -261,7 +261,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	/* Reset the port */
 	if (hub_port_reset(dev, port, &portstatus) < 0) {
-		kprintf("cannot reset port %i!?\r\n", port + 1);
+		kprintf("cannot reset port %d!?\r\n", port + 1);
 		return;
 	}
 
@@ -447,7 +447,7 @@ static int usb_hub_configure(struct usb_device *dev)
 			if (!(portstatus & USB_PORT_STAT_ENABLE) &&
 			     (portstatus & USB_PORT_STAT_CONNECTION) &&
 			     ((dev->children[i]))) {
-				USB_HUB_PRINTF("already running port %i "  \
+				USB_HUB_PRINTF("already running port %d "  \
 						"disabled by hub (EMI?), " \
 						"re-enabling...\r\n", i + 1);
 					usb_hub_port_connect_change(dev, i);

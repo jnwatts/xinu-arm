@@ -81,7 +81,7 @@ int control_data_toggle[MAX_DEVICE][MAX_ENDPOINT];
 
 void do_hang(int line, uint32_t d)
 {
-	kprintf("DWC OTG: hang at line %d: %08x\n", line, d);
+	kprintf("DWC OTG: hang at line %d: %08x\r\n", line, d);
 	while(1)
 	{
 		udelay(10);
@@ -108,7 +108,7 @@ void handle_error(int line, uint32_t d)
 		kprintf(" XACTERR");
 	if (hcint.b.datatglerr)
 		kprintf(" DATATGLERR");
-	kprintf("\n");
+	kprintf("\r\n");
 }
 
 /*
@@ -132,7 +132,7 @@ int usb_lowlevel_init(int index, void **controller)
 
 	if ((g_core_if.snpsid & 0xFFFFF000) !=
 		0x4F542000) {
-		kprintf("SNPSID is invalid (not DWC OTG device): %08x\n", g_core_if.snpsid);
+		kprintf("SNPSID is invalid (not DWC OTG device): %08x\r\n", g_core_if.snpsid);
 		return -1;
 	}
 
@@ -473,7 +473,7 @@ static int dwc_otg_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	case RH_SET_CONFIGURATION:
 		break;
 	default:
-		kprintf("unsupported root hub command\n");
+		kprintf("unsupported root hub command\r\n");
 		stat = USB_ST_STALLED;
 	}
 
@@ -507,7 +507,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int stop_transfer = 0;
 
 	if (len > DWC_OTG_HCD_DATA_BUF_SIZE) {
-		kprintf("submit_bulk_msg: %d is more then available buffer size(%d)\n", len, DWC_OTG_HCD_DATA_BUF_SIZE);
+		kprintf("submit_bulk_msg: %d is more then available buffer size(%d)\r\n", len, DWC_OTG_HCD_DATA_BUF_SIZE);
 		dev->status = 0;
 		dev->act_len = done;
 		return -1;
@@ -601,7 +601,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 					break;
 				}
 				else if (hcint_new.b.stall) {
-					kprintf("DWC OTG: Channel halted\n");
+					kprintf("DWC OTG: Channel halted\r\n");
 					bulk_data_toggle[devnum][ep] = DWC_OTG_HC_PID_DATA0;
 	
 					stop_transfer = 1;
@@ -647,7 +647,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	if (len > DWC_OTG_HCD_DATA_BUF_SIZE) {
-		kprintf("submit_control_msg: %d is more then available buffer size(%d)\n", len, DWC_OTG_HCD_DATA_BUF_SIZE);
+		kprintf("submit_control_msg: %d is more then available buffer size(%d)\r\n", len, DWC_OTG_HCD_DATA_BUF_SIZE);
 		dev->status = 0;
 		dev->act_len = done;
 		return -1;
@@ -806,7 +806,7 @@ out:
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int len, int interval)
 {
-	kprintf("dev = %p pipe = %#lx buf = %p size = %d int = %d\n", dev, pipe,
+	kprintf("dev = %p pipe = %#lx buf = %p size = %d int = %d\r\n", dev, pipe,
 	       buffer, len, interval);
 	return -1;
 }
