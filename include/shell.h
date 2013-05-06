@@ -58,6 +58,7 @@ short lexan(char *, ushort, char *, char *[]);
 shellcmd xsh_arp(int, char *[]);
 shellcmd xsh_usbStart(int, char *[]);
 shellcmd xsh_kbdStart(int, char *[]);
+shellcmd xsh_usb(int, char *[]);
 shellcmd xsh_clear(int, char *[]);
 shellcmd xsh_dumptlb(int, char *[]);
 shellcmd xsh_date(int, char *[]);

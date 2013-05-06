@@ -25,6 +25,8 @@ const struct centry commandtab[] = {
     {"ledoff", FALSE, xsh_ledoff},
 	{"usbStart", FALSE, xsh_usbStart},
 	{"kbdStart", FALSE, xsh_kbdStart},
+	{"usb", FALSE, xsh_usb},
+	
 
 #if NETHER
     {"arp", FALSE, xsh_arp},
