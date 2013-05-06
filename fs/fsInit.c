@@ -7,7 +7,7 @@
 #include <filesystem.h>
 #include <string.h>
 
-#define ARRAYSIZE(arr) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
+#define ARRAYSIZE(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 ObjectHeader* RootDir;
 ObjectType ObjectTypes[NFSTYPES];
@@ -200,12 +200,12 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	// Copy the path onto the stack, prepending the working directory for relative paths
 	if (path[0] != PATH_SEPARATOR)
 	{
-		strcpy(pathCopy, thrtab[thrcurrent].currdir);
-		strcat(pathCopy, path);
+		strncpy(pathCopy, thrtab[thrcurrent].currdir, MAXPATH);
+		strncat(pathCopy, path, MAXPATH);
 	}
 	else
 	{
-		strcpy(pathCopy, path);
+		strncpy(pathCopy, path, MAXPATH);
 	}
 
 	// Put the path into the nice form "/thing/thing/thing/file" without dots or double-slashes
@@ -217,7 +217,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		return ERR_FILE_NOT_FOUND;
 
 	if (actualPath)
-		strcpy(actualPath, pathCopy);
+		strncpy(actualPath, pathCopy, MAXPATH);
 
 #ifdef CASE_INSENSITIVE
 	// Compare all strings as lower-case for case insensitivity
@@ -259,7 +259,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 			else if (err)
 				break;
 
-			if (strlen(compareBuffer) == segLength)
+			if (strnlen(compareBuffer, MAXNAME) == segLength)
 			{
 #ifdef CASE_INSENSITIVE
 				StrToLower(compareBuffer);
@@ -317,10 +317,10 @@ errcode ChangeWorkingDirectory(char* path)
 {
 	char* pathCopy = malloc(MAXPATH + 1);
 	ObjectHeader* header;
-	errcode err = OpenObject(path, pathCopy, &header, FSMODE_OPEN | FSMODE_DIR, FSMODE_READ);
+	errcode err = OpenObject(path, pathCopy, &header, FSMODE_OPEN | FSMODE_DIR, FSACCESS_READ);
 	if (!err)
 	{
-		strcpy(thrtab[thrcurrent].currdir, pathCopy);
+		strncpy(thrtab[thrcurrent].currdir, pathCopy, MAXPATH);
 		CloseObject(header);
 	}
 
