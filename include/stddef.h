@@ -17,7 +17,7 @@ typedef unsigned short ushort;  /**< unsigned short type                */
 typedef unsigned int uint;      /**< unsigned int type                  */
 typedef unsigned long ulong;    /**< unsigned long type                 */
 typedef char bool;              /**< boolean type                       */
-typedef int size_t;
+typedef uint size_t;
 
 /* Function declaration return types */
 typedef int syscall;            /**< system call declaration            */

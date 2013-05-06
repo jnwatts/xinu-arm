@@ -204,7 +204,7 @@ static void PreprocessPath(char* path)
 }
 
 // Determines whether enumeration functions are called to validate sub-object naming
-#define ENUM_TO_OPEN
+//#define ENUM_TO_OPEN
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
