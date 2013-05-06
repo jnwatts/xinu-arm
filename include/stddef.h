@@ -17,7 +17,7 @@ typedef unsigned short ushort;  /**< unsigned short type                */
 typedef unsigned int uint;      /**< unsigned int type                  */
 typedef unsigned long ulong;    /**< unsigned long type                 */
 typedef char bool;              /**< boolean type                       */
-typedef uint size_t;
+typedef unsigned int size_t;
 
 /* Function declaration return types */
 typedef int syscall;            /**< system call declaration            */
@@ -29,6 +29,8 @@ typedef void exchandler;        /**< exception procedure                */
 typedef int message;            /**< message passing content            */
 
 typedef int tid_typ;            /**< thread ID type                     */
+typedef int errcode;			/**< system error code					*/
+typedef long long fileptr;		/**< file position pointers				*/
 
 /* Boolean type and constants */
 #define FALSE        0          /**< boolean false                      */

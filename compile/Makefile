@@ -28,7 +28,7 @@ LIBDIR    = ${TOPDIR}/lib
 # Each component is a directory in the source tree and should include a
 # Makerules specifying what files to include
 # (The loader should always be first, ensuring the image starts with it.)
-SYSCOMPS  = loader/platforms/${PLATFORM} system/platforms/${PLATFORM} system
+SYSCOMPS  = loader/platforms/${PLATFORM} system/platforms/${PLATFORM} system fs
 COMPS     = ${SYSCOMPS} ${DEVCOMPS} ${APPCOMPS}
 
 # Location of the conf.c file defining system devices
