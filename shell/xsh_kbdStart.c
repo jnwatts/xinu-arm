@@ -23,6 +23,8 @@
 
 #define USB_KBD_LEDMASK		\
 	(USB_KBD_NUMLOCK | USB_KBD_CAPSLOCK | USB_KBD_SCROLLLOCK)
+	
+//static int usb_kbd_getc(void);
 
 struct usb_kbd_pdata {
 	u32	repeat_delay;
@@ -56,11 +58,6 @@ static void usb_kbd_setled2(struct usb_device *dev)
 shellcmd xsh_kbdStart(int nargs, char *args[])
 {
     /* Check for correct number of arguments */
-    if (nargs > 1)
-    {
-        fprintf(stderr, "%s: too many arguments\n", args[0]);
-        return SYSERR;
-    }
     if (nargs == 1)
     {
 			kprintf("Polllll\r\n");
@@ -68,7 +65,12 @@ shellcmd xsh_kbdStart(int nargs, char *args[])
 			kprintf("Set the leds\r\n");
 			usb_kbd_setled2(usb_get_dev_index(3));
 		
-    }
+    } else if (nargs == 2)
+	{
+		kprintf("Test usb get c\n\r");
+		int c = usb_kbd_getc();
+		kprintf("Returned: %u\r\n", c);
+	}
 
     return OK;
 }

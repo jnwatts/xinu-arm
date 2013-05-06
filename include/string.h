@@ -15,6 +15,7 @@ char *strchr(const char *, int);
 char *strrchr(const char *, int);
 char *strstr(const char *, const char *);
 int strnlen(const char *, uint);
+int strlen(const char * s);
 
 int memcmp(const void *, const void *, int);
 void *memcpy(void *, const void *, int);

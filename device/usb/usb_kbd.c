@@ -352,7 +352,8 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 			maxp > 8 ? 8 : maxp, ep->bInterval);
 
 	usb_kbd_irq_worker(dev);
-#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
+#endif
+	//#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
 	struct usb_interface *iface;
 	struct usb_kbd_pdata *data = dev->privptr;
 	iface = &dev->config.if_desc[0];
@@ -360,7 +361,7 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 			1, 0, data->new, sizeof(data->new));
 	if (memcmp(data->old, data->new, sizeof(data->new)))
 		usb_kbd_irq_worker(dev);
-#endif
+//#endif
 }
 
 /* test if a character is in the queue */
@@ -383,7 +384,7 @@ static int usb_kbd_testc(void)
 }
 
 /* gets the character from the queue */
-static int usb_kbd_getc(void)
+int usb_kbd_getc(void)
 {
 	//struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;

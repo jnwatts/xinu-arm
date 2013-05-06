@@ -793,8 +793,8 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			break;
 	}
 
-	/*if (hcint_new.d32 != STATUS_ACK_HLT_COMPL)*/
-		/*handle_error(__LINE__, hcint_new.d32);*/
+	if (hcint_new.d32 != STATUS_ACK_HLT_COMPL)
+		handle_error(__LINE__, hcint_new.d32);
 
 out:
 	dev->act_len = done;
