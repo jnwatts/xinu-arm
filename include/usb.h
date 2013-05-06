@@ -59,7 +59,7 @@
 #define debug_cond(cond, fmt, args...)		\
 	do {					\
 		if (cond)			\
-			kprintf(fmt, ##args);	\
+			printf(fmt, ##args);	\
 	} while (0)
 
 #define debug(fmt, args...)			\

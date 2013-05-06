@@ -2182,7 +2182,7 @@ void dwc_otg_hc_init(dwc_otg_core_if_t * core_if, uint8_t hc_num,
 
 	dwc_write_reg32(&host_if->hc_regs[hc_num]->hcchar, hcchar.d32);
 
-#if 0
+#if 1
 	PDEBUG("%s: Channel %d\r\n", __func__, hc_num);
 	PDEBUG("	 Dev Addr: %d\r\n", hcchar.b.devaddr);
 	PDEBUG("	 Ep Num: %d\r\n", hcchar.b.epnum);

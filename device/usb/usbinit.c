@@ -1,5 +1,5 @@
-#define printf kprintf
-#define USB_PRINTF kprintf
+//#define printf kprintf
+#define USB_PRINTF printf
 
 
 /**
