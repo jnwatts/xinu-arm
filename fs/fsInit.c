@@ -175,7 +175,6 @@ static void PreprocessPath(char* path)
 	
 	// Advance beyond the first slash
 	segStart++;
-	dest++;
 
 	while (*segStart)
 	{
@@ -221,6 +220,8 @@ static void PreprocessPath(char* path)
 			segStart += segLength;
 		}
 	}
+	if (dest == path)
+		dest++;
 	*dest = 0;
 }
 
