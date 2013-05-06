@@ -177,12 +177,12 @@ static void PreprocessPath(char* path)
 			segStart++;
 		}
 		// Handle single dots by throwing them away
-		else if (segLength == 1 && memcmp(segStart, ".", 1))
+		else if (segLength == 1 && !memcmp(segStart, ".", 1))
 		{
 			segStart++;
 		}
 		// Handle double dots by moving back to the last slash
-		else if (segLength == 2 && memcmp(segStart, "..", 2))
+		else if (segLength == 2 && !memcmp(segStart, "..", 2))
 		{
 			// Find the last slash
 			char* lastSlash = dest - 1;
