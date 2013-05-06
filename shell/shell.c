@@ -19,6 +19,7 @@
 #include <conf.h>
 
 const struct centry commandtab[] = {
+
     {"printtos", FALSE, xsh_printtos},
     {"printprocstks", FALSE, xsh_printprocstks},
     {"ledon", FALSE, xsh_ledon},
@@ -27,6 +28,12 @@ const struct centry commandtab[] = {
 	{"kbdStart", FALSE, xsh_kbdStart},
 	{"usb", FALSE, xsh_usb},
 	
+
+    {"cd", TRUE, xsh_cd},
+    {"pwd", TRUE, xsh_pwd},
+    {"dir", FALSE, xsh_dir},
+    {"ls", FALSE, xsh_dir},
+    {"mkdir", FALSE, xsh_mkdir},
 
 #if NETHER
     {"arp", FALSE, xsh_arp},

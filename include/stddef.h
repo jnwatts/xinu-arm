@@ -29,12 +29,15 @@ typedef void exchandler;        /**< exception procedure                */
 typedef int message;            /**< message passing content            */
 
 typedef int tid_typ;            /**< thread ID type                     */
+typedef int errcode;			/**< system error code					*/
+typedef long long fileptr;		/**< file position pointers				*/
 
 /* Boolean type and constants */
 #define FALSE        0          /**< boolean false                      */
 #define TRUE         1          /**< boolean true                       */
 
 /* Universal return constants */
+#define SUCCESS   0
 #define OK        1             /**< system call ok                     */
 #define NULL      0             /**< null pointer for linked lists      */
 #define SYSERR   (-1)           /**< system call failed                 */

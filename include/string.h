@@ -21,6 +21,7 @@ int memcmp(const void *, const void *, int);
 void *memcpy(void *, const void *, int);
 void *memchr(const void *, int, int);
 void *memset(void *, int, int);
+void *memmove(void *, const void *, int);
 void * memscan(void * addr, int c, int size);
 
 #endif                          /* _STRING_H_ */

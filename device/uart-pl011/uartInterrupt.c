@@ -14,6 +14,11 @@
 
 extern int resdefer;
 
+static int uartInterruptDebug(struct uart *uartptr)
+{
+	return semcount(uartptr->osema);
+}
+
 /**
  * Decode hardware interrupt request from UART device.
  */
@@ -48,7 +53,8 @@ interrupt uartInterrupt(void)
         }
 
         //handle whatever interrupt occurred
-        if(ris & PL011_RIS_TXRIS){ //if the transmitter FIFO ran out
+        if(ris & PL011_RIS_TXRIS) //if the transmitter FIFO ran out
+		{
             uartptr->oirq++; //increment output IRQ count
             regptr->icr |= PL011_ICR_TXIC; //clear transmitter interrupt
             count = 0;
@@ -68,14 +74,16 @@ interrupt uartInterrupt(void)
             if (count)
             {
                 uartptr->cout += count;
+				signaln(uartptr->osema, count);
             }
             /* If no characters were written, set the output idle flag. */
             else
             {
                 uartptr->oidle = TRUE;
             }
-            signaln(uartptr->osema, count);
-        }else if(ris & PL011_RIS_RXRIS){ //if the receiver FIFO is full
+        }
+		if(ris & PL011_RIS_RXRIS) //if the receiver FIFO is full
+		{
             uartptr->iirq++; //increment input IRQ count
             count = 0;
             while ((regptr->fr & PL011_FR_RXFE) == 0) //while the receive FIFO is not empty

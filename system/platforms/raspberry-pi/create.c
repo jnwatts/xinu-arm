@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <thread.h>
+#include <filesystem.h>
 
 /**
  * Context record offsets
@@ -73,6 +74,7 @@ tid_typ create(void *procaddr, uint ssize, int priority,
     thrptr->hasmsg = FALSE;
     thrptr->memlist.next = NULL;
     thrptr->memlist.length = 0;
+    strncpy(thrptr->currdir, thrtab[thrcurrent].currdir, MAXPATH);
 
     //TEB: this is hardcoded for ARM
     //This is to enable the timer interrupt
