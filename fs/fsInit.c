@@ -23,16 +23,22 @@ fshandle CreateHandle(ObjectHeader* header)
 
 errcode CloseFile(fshandle handle)
 {
+	printf("CloseFile(%d)\n", handle);
+
 	ObjectHeader* header = NULL;
 	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
 	if (err < 0 || !header)
 		return err;
+
+	HashRemove(&OpenHandles, handle);
 
 	return CloseObject(header);
 }
 
 errcode CloseObject(ObjectHeader* header)
 {
+	printf("CloseObject(%d)\n", header);
+
 	if (!header)
 		return OK;
 
@@ -49,12 +55,16 @@ errcode CloseObject(ObjectHeader* header)
 
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
+	printf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
+
 	ObjectHeader* header = NULL;
 	errcode result = OpenObject(path, NULL, &header, mode, access);
 	if (result < 0)
 		return result;
 
-	header->refCount++;
+	*openedHandle = CreateHandle(header);
+
+	return result;
 }
 
 errcode DeleteFile(char* path)
@@ -208,6 +218,8 @@ static void PreprocessPath(char* path)
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
+	printf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
+
 	char pathCopy[MAXPATH + 1] = {0};
 	errcode err = OK;
 
