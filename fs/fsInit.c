@@ -23,7 +23,7 @@ fshandle CreateHandle(ObjectHeader* header)
 
 errcode CloseFile(fshandle handle)
 {
-	printf("CloseFile(%d)\n", handle);
+	kprintf("CloseFile(%d)\n", handle);
 
 	ObjectHeader* header = NULL;
 	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
@@ -37,7 +37,7 @@ errcode CloseFile(fshandle handle)
 
 errcode CloseObject(ObjectHeader* header)
 {
-	printf("CloseObject(%d)\n", header);
+	kprintf("CloseObject(%d)\n", header);
 
 	if (!header)
 		return OK;
@@ -55,7 +55,7 @@ errcode CloseObject(ObjectHeader* header)
 
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
-	printf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
+	kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
 
 	ObjectHeader* header = NULL;
 	errcode result = OpenObject(path, NULL, &header, mode, access);
@@ -218,7 +218,7 @@ static void PreprocessPath(char* path)
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	printf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
+	kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
 	char pathCopy[MAXPATH + 1] = {0};
 	errcode err = OK;
@@ -270,11 +270,11 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
 		if (segLength == 0)
 		{
-			printf("done with path\n");
+			kprintf("done with path\n");
 			break;
 		}
 
-		printf("Segment: %.*s\n", segLength, currSeg);
+		kprintf("Segment: %.*s\n", segLength, currSeg);
 		
 #ifdef ENUM_TO_OPEN
 		int foundName = FALSE;
