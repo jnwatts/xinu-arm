@@ -27,7 +27,7 @@ shellcmd xsh_pwd(int nargs, char *args[])
         return 1;
     }
 
-    printf(thrtab[thrcurrent].currdir);
+    printf("%s\n", thrtab[thrcurrent].currdir);
 
     return 0;
 }

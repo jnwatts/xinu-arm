@@ -87,11 +87,27 @@ errcode ReadFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
+	return OK;
 }
 
 errcode WriteFile(fshandle handle, char* buffer, int len)
 {
+	ObjectHeader* header = NULL;
+	errcode err = HashGet(&OpenHandles, handle, &header);
+	if (err < 0 || !header)
+		return err;
+	return OK;
+}
 
+errcode EnumFiles(fshandle handle, int index, char* buffer)
+{
+	ObjectHeader* header = NULL;
+	errcode err = HashGet(&OpenHandles, handle, &header);
+	if (err < 0 || !header)
+		return err;
+
+	err = ObjectTypes[header->objType].enumEntries(header, index, buffer);
+	return err;
 }
 
 void AddObjectType(ObjectType* type)

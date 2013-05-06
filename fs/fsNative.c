@@ -19,7 +19,7 @@ int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info)
 	*info = (ObjectInfo){0};
 }
 
-int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
+int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
 	fsNative_Dir* dir = GetObjectCustomData(obj);
 	for (int i = 0; i < dir->children.count; i++)
@@ -28,11 +28,24 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
 		ListGet(&dir->children, i, (void**)&child);
 		if (!strncmp(child->objName, path, MAXNAME))
 		{
+			if ((mode & FSMODE_BASIC_MASK) == FSMODE_CREATENEW)
+				return ERR_FILE_ALREADY_EXISTS;
+
 			child->refCount++;
 			*newObj = child;
 			return OK;
 		}
 	}
+
+	// Create a new entry if requested
+	if ((mode & FSMODE_BASIC_MASK) != FSMODE_OPEN)
+	{
+		*newObj = fsNative_CreateHeader(path);
+		LstAdd(&dir->children, newObj);
+		(*newObj)->refCount++;
+		return OK;
+	}
+
 	return ERR_FILE_NOT_FOUND;
 }
 
@@ -57,4 +70,9 @@ int fsNative_deleteObj(ObjectHeader* obj)
 int fsNative_close(ObjectHeader* obj)
 {
 	return OK;
+}
+
+int fsNative_mountObj(ObjectHeader* obj)
+{
+
 }

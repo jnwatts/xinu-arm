@@ -22,6 +22,8 @@
 #define ERR_FILE_NOT_FOUND	-101
 #define ERR_ACCESS_DENIED	-102
 #define ERR_NO_MORE_ENTRIES	-103
+#define ERR_FILE_ALREADY_EXISTS	-104
+#define ERR_DIR_NOT_EMPTY	-105
 
 typedef int fshandle;
 
@@ -32,14 +34,17 @@ typedef enum
 	FSMODE_CREATENEW = 2,
 
 	// OR with this flag to specify the creation of a directory rather than a file
-	FSMODE_DIR = 0x100
+	FSMODE_DIR = 0x100,
+
+	FSMODE_BASIC_MASK = 0x3
 } FSMODE;
 
 typedef enum
 {
 	FSACCESS_INFO = 0,
 	FSACCESS_READ = 1,
-	FSACCESS_WRITE = 2
+	FSACCESS_WRITE = 2,
+	FSACCESS_READWRITE = FSACCESS_READ | FSACCESS_WRITE
 } FSACCESS;
 
 // Contains information about an object, as returned by a file system driver
@@ -102,6 +107,7 @@ errcode CloseFile(fshandle handle);
 errcode DeleteFile(char* path);
 errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
+errcode EnumFiles(fshandle handle, int index, char* buffer);
 
 // Internal filesystem API
 void fsInit();
