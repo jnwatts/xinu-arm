@@ -15,6 +15,7 @@
 #include <platform.h>
 #include <stddef.h>
 #include <memory.h>
+ #include <filesystem.h>
 
 /* unusual value marks the top of the thread stack                      */
 #define STACKMAGIC  0x0A0AAAA9

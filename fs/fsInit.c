@@ -60,7 +60,7 @@ errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS acc
 errcode DeleteFile(char* path)
 {
 	ObjectHeader* header = NULL;
-	errcode err = OpenObject(path, &header, FSMODE_OPENEXISTING, FSACCESS_WRITE);
+	errcode err = OpenObject(path, &header, FSMODE_OPEN, FSACCESS_WRITE);
 	if (err < 0 || !header)
 		return err;
 
@@ -96,9 +96,9 @@ errcode WriteFile(fshandle handle, char* buffer, int len)
 
 void AddObjectType(ObjectType* type)
 {
-	ObjectType* newType = malloc(sizeof(ObjectType));
+	/*ObjectType* newType = malloc(sizeof(ObjectType));
 	*newType = *type;
-	ListAdd(&ObjectTypes, newType);
+	ListAdd(&ObjectTypes, newType);*/
 }
 
 static void StrToLower(char* str)
@@ -160,7 +160,7 @@ static void PreprocessPath(char* path)
 		{
 			// Find the last slash
 			char* lastSlash = dest - 1;
-			while (lastSlash >= path && lastSlash != PATH_SEPARATOR)
+			while (lastSlash >= path && *lastSlash != PATH_SEPARATOR)
 			{
 				lastSlash--;
 			}
