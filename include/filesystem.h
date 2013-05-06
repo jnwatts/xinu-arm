@@ -94,12 +94,26 @@ typedef struct
 // Opens or creates a file in the filesystem
 // - openedHandle - a pointer to a location in which to place the handle to the opened file
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access);
+errcode CloseAndDeleteFile(fshandle handle);
 errcode CloseFile(fshandle handle);
 errcode DeleteFile(char* path);
 errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
 
-extern ObjectHeader RootDir;
+// Internal filesystem API
+fshandle CreateHandle(ObjectHeader* header);
+errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
+void AddObjectType(ObjectType* type);
+errcode CloseObject(ObjectHeader* header);
+
+// Internal native FS functions
+ObjectHeader* fsNative_CreateHeader(char* path);
+int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info);
+int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj);
+int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer);
+int fsNative_deleteObj(ObjectHeader* obj);
+int fsNative_close(ObjectHeader* obj);
+
 extern ObjectType ObjectTypes[];
 extern List OpenObjects;
 

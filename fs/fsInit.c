@@ -3,7 +3,9 @@
 
 #include <stdlib.h>
 #include <device.h>
+#include <thread.h>
 #include <filesystem.h>
+#include <string.h>
 
 #define ARRAYSIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
@@ -279,7 +281,7 @@ errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS acce
 
 		// Open the sub-object
 		ObjectHeader* nextObj = NULL;
-		err = currObjType->openObject(currObj, compareBuffer, &newObj, mode, access);
+		err = currObjType->openObj(currObj, compareBuffer, &newObj, mode, access);
 		if (err || !nextObj)
 		{
 			err = err ? err : ERR_FILE_NOT_FOUND;
@@ -327,12 +329,12 @@ void fsInit()
 	// Register the native VFS object type
 	ObjectType type = 
 	{
-		typeId = FSTYPE_NATIVE,
-		getInfo = fsNative_getInfo,
-		openObj = fsNative_openObject,
-		enumEntries = fsNative_enumEntries,
-		deleteObj = fsNative_deleteObj,
-		close = fsNative_close
+		.typeId = FSTYPE_NATIVE,
+		.getInfo = fsNative_getInfo,
+		.openObj = fsNative_openObj,
+		.enumEntries = fsNative_enumEntries,
+		.deleteObj = fsNative_deleteObj,
+		.close = fsNative_close
 	};
 	AddObjectType(&type);
 

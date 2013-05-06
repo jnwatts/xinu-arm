@@ -50,6 +50,7 @@ int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer)
 
 int fsNative_deleteObj(ObjectHeader* obj)
 {
+	obj->refCount--;
 	return OK;
 }
 
