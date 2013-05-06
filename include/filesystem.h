@@ -62,6 +62,7 @@ typedef struct
 	char objName[MAXNAME];
 	int refCount;
 	int extraBytes;
+	void* extraData;
 } ObjectHeader;
 
 typedef struct

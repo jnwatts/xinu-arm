@@ -232,7 +232,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 {
 	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
-	char pathCopy[MAXPATH + 1] = {0};
+	char* pathCopy = malloc(MAXPATH + 1);
 	errcode err = SUCCESS;
 
 	*newObj = NULL;
@@ -373,13 +373,14 @@ errcode ChangeWorkingDirectory(char* path)
 
 ObjectHeader* AllocateObjectHeader(int extraBytes)
 {
-	ObjectHeader* ret = malloc(sizeof(ObjectHeader) + extraBytes);
+	ObjectHeader* ret = malloc(sizeof(ObjectHeader));
+	ret->extraData = malloc(extraBytes);
 	ret->extraBytes = extraBytes;
 }
 
 void* GetObjectCustomData(ObjectHeader* header)
 {
-	return header + 1;
+	return header->extraData;
 }
 
 void fsInit()
