@@ -258,8 +258,11 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
 		if (segLength == 0)
 		{
+			printf("done with path\n");
 			break;
 		}
+
+		printf("Segment: %.*s\n", segLength, currSeg);
 		
 #ifdef ENUM_TO_OPEN
 		int foundName = FALSE;
