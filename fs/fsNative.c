@@ -7,6 +7,7 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 	ObjectHeader* header = AllocateObjectHeader(sizeof(fsNative_Dir));
 	fsNative_Dir* dir = GetObjectCustomData(header);
 
+	header->objType = FSTYPE_NATIVE;
 	strncpy(header->objName, path, MAXNAME);
 	header->refCount = 1;
 
@@ -33,7 +34,7 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 
 			child->refCount++;
 			*newObj = child;
-			return OK;
+			return SUCCESS;
 		}
 	}
 
@@ -41,9 +42,9 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 	if ((mode & FSMODE_BASIC_MASK) != FSMODE_OPEN)
 	{
 		*newObj = fsNative_CreateHeader(path);
-		ListAdd(&dir->children, newObj);
+		ListAdd(&dir->children, *newObj);
 		(*newObj)->refCount++;
-		return OK;
+		return SUCCESS;
 	}
 
 	return ERR_FILE_NOT_FOUND;
@@ -58,18 +59,18 @@ int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer)
 
 	ListGet(&dir->children, index, (void**)&child);
 	strncpy(buffer, child->objName, MAXNAME);
-	return OK;
+	return SUCCESS;
 }
 
 int fsNative_deleteObj(ObjectHeader* obj)
 {
 	obj->refCount--;
-	return OK;
+	return SUCCESS;
 }
 
 int fsNative_close(ObjectHeader* obj)
 {
-	return OK;
+	return SUCCESS;
 }
 
 int fsNative_mountObj(ObjectHeader* obj)

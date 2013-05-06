@@ -12,7 +12,7 @@
 ObjectHeader* RootDir;
 ObjectType ObjectTypes[NFSTYPES];
 HashTable OpenHandles;
-fshandle NextHandle;
+fshandle NextHandle = 1;
 
 fshandle CreateHandle(ObjectHeader* header)
 {
@@ -23,25 +23,31 @@ fshandle CreateHandle(ObjectHeader* header)
 
 errcode CloseFile(fshandle handle)
 {
+	//kprintf("CloseFile(%d)\n", handle);
+
 	ObjectHeader* header = NULL;
 	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
 	if (err < 0 || !header)
 		return err;
+
+	HashRemove(&OpenHandles, handle);
 
 	return CloseObject(header);
 }
 
 errcode CloseObject(ObjectHeader* header)
 {
+	//kprintf("CloseObject(%d)\n", header);
+
 	if (!header)
-		return OK;
+		return SUCCESS;
 
 	errcode err = ObjectTypes[header->objType].close(header);
 
 	// Decrement the reference count and delete the object if it isn't referenced by anyone
 	if (--header->refCount <= 0)
 	{
-		free(header);
+		//free(header);
 	}
 
 	return err;
@@ -49,12 +55,16 @@ errcode CloseObject(ObjectHeader* header)
 
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
+	//kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
+
 	ObjectHeader* header = NULL;
 	errcode result = OpenObject(path, NULL, &header, mode, access);
 	if (result < 0)
 		return result;
 
-	header->refCount++;
+	*openedHandle = CreateHandle(header);
+
+	return result;
 }
 
 errcode DeleteFile(char* path)
@@ -87,7 +97,7 @@ errcode ReadFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-	return OK;
+	return SUCCESS;
 }
 
 errcode WriteFile(fshandle handle, char* buffer, int len)
@@ -96,7 +106,7 @@ errcode WriteFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-	return OK;
+	return SUCCESS;
 }
 
 errcode EnumFiles(fshandle handle, int index, char* buffer)
@@ -115,6 +125,7 @@ void AddObjectType(ObjectType* type)
 	/*ObjectType* newType = malloc(sizeof(ObjectType));
 	*newType = *type;
 	ListAdd(&ObjectTypes, newType);*/
+	ObjectTypes[type->typeId] = *type;
 }
 
 static void StrToLower(char* str)
@@ -156,6 +167,15 @@ static void PreprocessPath(char* path)
 	int segLength = 0;
 	dest = segStart = path;
 
+	if (path[0] != PATH_SEPARATOR)
+	{
+		path[0] = 0;
+		return;
+	}
+	
+	// Advance beyond the first slash
+	segStart++;
+
 	while (*segStart)
 	{
 		// Find the next slash
@@ -167,12 +187,12 @@ static void PreprocessPath(char* path)
 			segStart++;
 		}
 		// Handle single dots by throwing them away
-		else if (segLength == 1 && memcmp(segStart, ".", 1))
+		else if (segLength == 1 && !memcmp(segStart, ".", 1))
 		{
 			segStart++;
 		}
 		// Handle double dots by moving back to the last slash
-		else if (segLength == 2 && memcmp(segStart, "..", 2))
+		else if (segLength == 2 && !memcmp(segStart, "..", 2))
 		{
 			// Find the last slash
 			char* lastSlash = dest - 1;
@@ -200,16 +220,21 @@ static void PreprocessPath(char* path)
 			segStart += segLength;
 		}
 	}
+	if (dest == path)
+		dest++;
 	*dest = 0;
 }
 
 // Determines whether enumeration functions are called to validate sub-object naming
-#define ENUM_TO_OPEN
+//#define ENUM_TO_OPEN
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	char pathCopy[MAXPATH + 1] = {0};
-	errcode err = OK;
+	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
+
+	char* pathCopy = malloc(MAXPATH + 1);
+	pathCopy[0] = 0;
+	errcode err = SUCCESS;
 
 	*newObj = NULL;
 
@@ -217,6 +242,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	if (path[0] != PATH_SEPARATOR)
 	{
 		strncpy(pathCopy, thrtab[thrcurrent].currdir, MAXPATH);
+		strncat(pathCopy, "/", MAXPATH);
 		strncat(pathCopy, path, MAXPATH);
 	}
 	else
@@ -258,8 +284,11 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
 		if (segLength == 0)
 		{
+			//kprintf("done with path\n");
 			break;
 		}
+
+		//kprintf("Segment: %.*s\n", segLength, currSeg);
 		
 #ifdef ENUM_TO_OPEN
 		int foundName = FALSE;
@@ -345,13 +374,14 @@ errcode ChangeWorkingDirectory(char* path)
 
 ObjectHeader* AllocateObjectHeader(int extraBytes)
 {
-	ObjectHeader* ret = malloc(sizeof(ObjectHeader) + extraBytes);
+	ObjectHeader* ret = malloc(sizeof(ObjectHeader));
+	ret->extraData = malloc(extraBytes);
 	ret->extraBytes = extraBytes;
 }
 
 void* GetObjectCustomData(ObjectHeader* header)
 {
-	return header + 1;
+	return header->extraData;
 }
 
 void fsInit()

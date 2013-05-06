@@ -48,7 +48,7 @@ shellcmd xsh_cd(int nargs, char *args[])
     }
     else
     {
-        printf(thrtab[thrcurrent].currdir);
+        printf("%s\n", thrtab[thrcurrent].currdir);
     }
 
     return 0;

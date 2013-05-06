@@ -17,7 +17,7 @@ typedef unsigned short ushort;  /**< unsigned short type                */
 typedef unsigned int uint;      /**< unsigned int type                  */
 typedef unsigned long ulong;    /**< unsigned long type                 */
 typedef char bool;              /**< boolean type                       */
-typedef unsigned int size_t;
+typedef uint size_t;
 
 /* Function declaration return types */
 typedef int syscall;            /**< system call declaration            */
@@ -37,6 +37,7 @@ typedef long long fileptr;		/**< file position pointers				*/
 #define TRUE         1          /**< boolean true                       */
 
 /* Universal return constants */
+#define SUCCESS   0
 #define OK        1             /**< system call ok                     */
 #define NULL      0             /**< null pointer for linked lists      */
 #define SYSERR   (-1)           /**< system call failed                 */
