@@ -166,6 +166,16 @@ static void PreprocessPath(char* path)
 	int segLength = 0;
 	dest = segStart = path;
 
+	if (path[0] != PATH_SEPARATOR)
+	{
+		path[0] = 0;
+		return;
+	}
+	
+	// Advance beyond the first slash
+	segStart++;
+	dest++;
+
 	while (*segStart)
 	{
 		// Find the next slash

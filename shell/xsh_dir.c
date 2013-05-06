@@ -19,6 +19,8 @@
  */
 shellcmd xsh_dir(int nargs, char *args[])
 {
+    printf("\n");
+    
     /* Output help, if '--help' argument was supplied */
     if (nargs == 2 && strncmp(args[1], "--help", 7) == 0)
     {
