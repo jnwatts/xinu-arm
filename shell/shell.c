@@ -618,6 +618,15 @@ int shellRead(int dev, char * buf, uint len){
 	if (buf[count-1] == '\r')
 		buf[count-1] = '\n';
 	
+	if ( count == 3 ){
+		if (buf[0] == '!'){
+			if (buf[1] == '!'){
+				memcpy(buf, history[((curHistIndex + curHistElements - 1) % curHistElements)].com, SHELL_BUFLEN);
+				count = history[((curHistIndex + curHistElements - 1) % curHistElements)].size;
+			}
+		}
+	}
+
 	if ( count > 1 ){
 		history[curHistIndex].size = count;
 		memcpy(history[curHistIndex].com, buf, SHELL_BUFLEN);
