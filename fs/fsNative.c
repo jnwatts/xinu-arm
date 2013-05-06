@@ -42,7 +42,7 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 	if ((mode & FSMODE_BASIC_MASK) != FSMODE_OPEN)
 	{
 		*newObj = fsNative_CreateHeader(path);
-		ListAdd(&dir->children, newObj);
+		ListAdd(&dir->children, *newObj);
 		(*newObj)->refCount++;
 		return SUCCESS;
 	}
