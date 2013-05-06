@@ -233,6 +233,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
 	char* pathCopy = malloc(MAXPATH + 1);
+	pathCopy[0] = 0;
 	errcode err = SUCCESS;
 
 	*newObj = NULL;
