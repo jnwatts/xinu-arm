@@ -108,6 +108,7 @@ errcode DeleteFile(char* path);
 errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
 errcode EnumFiles(fshandle handle, int index, char* buffer);
+errcode ChangeWorkingDirectory(char* path);
 
 // Internal filesystem API
 void fsInit();
@@ -119,7 +120,7 @@ errcode CloseObject(ObjectHeader* header);
 // Internal native FS functions
 ObjectHeader* fsNative_CreateHeader(char* path);
 int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info);
-int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj);
+int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
 int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer);
 int fsNative_deleteObj(ObjectHeader* obj);
 int fsNative_close(ObjectHeader* obj);

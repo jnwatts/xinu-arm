@@ -28,9 +28,9 @@ int fsDev_getInfo(ObjectHeader* obj, ObjectInfo* info)
 
 int fsDev_openObj(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	if ((mode & FSMODE_BASIC_MASK) == FSMODE_CREATE)
+	if ((mode & FSMODE_BASIC_MASK) == FSMODE_CREATENEW)
 		return ERR_ACCESS_DENIED;
-	
+
 	fsDev_Data* data = GetObjectCustomData(obj);
 
 }

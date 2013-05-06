@@ -29,7 +29,7 @@ const struct centry commandtab[] = {
     {"pwd", TRUE, xsh_pwd},
     {"dir", FALSE, xsh_dir},
     {"ls", FALSE, xsh_dir},
-    {"mkdir", FALSE, xsh_mkdir}
+    {"mkdir", FALSE, xsh_mkdir},
 
 #if NETHER
     {"arp", FALSE, xsh_arp},

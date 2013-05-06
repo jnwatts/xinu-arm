@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <filesystem.h>
 
 /**
  * Shell command (cd) changes the current working directory.
