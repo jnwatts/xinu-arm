@@ -12,7 +12,7 @@
 #define MAXPATH 256
 #define MAXNAME 26
 
-#define NFSTYPES 3
+#define NFSTYPES 5
 
 #define FSTYPE_NATIVE	1
 #define FSTYPE_DEV		2

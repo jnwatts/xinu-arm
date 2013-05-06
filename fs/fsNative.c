@@ -7,6 +7,7 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 	ObjectHeader* header = AllocateObjectHeader(sizeof(fsNative_Dir));
 	fsNative_Dir* dir = GetObjectCustomData(header);
 
+	header->objType = FSTYPE_NATIVE;
 	strncpy(header->objName, path, MAXNAME);
 	header->refCount = 1;
 

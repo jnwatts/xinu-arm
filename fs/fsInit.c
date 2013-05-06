@@ -125,6 +125,7 @@ void AddObjectType(ObjectType* type)
 	/*ObjectType* newType = malloc(sizeof(ObjectType));
 	*newType = *type;
 	ListAdd(&ObjectTypes, newType);*/
+	ObjectTypes[type->typeId] = *type;
 }
 
 static void StrToLower(char* str)
