@@ -241,7 +241,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	if (path[0] != PATH_SEPARATOR)
 	{
 		strncpy(pathCopy, thrtab[thrcurrent].currdir, MAXPATH);
-		strncat(pathCopy, "/");
+		strncat(pathCopy, "/", MAXPATH);
 		strncat(pathCopy, path, MAXPATH);
 	}
 	else
