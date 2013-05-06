@@ -25,19 +25,19 @@
 
 typedef int fshandle;
 
-enum FSMODE
+typedef enum
 {
 	FSMODE_OPEN = 0,
 	FSMODE_OPENORCREATE = 1,
 	FSMODE_CREATENEW = 2
-};
+} FSMODE;
 
-enum FSACCESS
+typedef enum
 {
 	FSACCESS_INFO = 0,
 	FSACCESS_READ = 1,
 	FSACCESS_WRITE = 2
-};
+} FSACCESS;
 
 // Contains information about an object, as returned by a file system driver
 typedef struct
