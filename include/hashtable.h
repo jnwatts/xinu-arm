@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include "stddef.h"
+
 typedef struct HashEntry
 {
 	int filled;
