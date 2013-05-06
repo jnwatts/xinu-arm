@@ -4,7 +4,7 @@
 COMP = device/usb
 
 # Source files for this component
-C_FILES = usbinit.c usb_hub.c usb.c
+C_FILES = usbinit.c usb_hub.c usb.c usb_kbd.c
 S_FILES = 
 
 # Add the files to the compile source path

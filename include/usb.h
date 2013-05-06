@@ -280,12 +280,14 @@ int usb_host_eth_scan(int mode);
 
 #endif
 
-#ifdef CONFIG_USB_KEYBOARD
+
 
 int drv_usb_kbd_init(void);
 int usb_kbd_deregister(void);
+void usb_kbd_generic_poll (void);
+ //static void usb_kbd_setled(struct usb_device *dev);
 
-#endif
+
 /* routines */
 int usb_init(void); /* initialize the USB Controller */
 devcall usbInit(device *devptr);
