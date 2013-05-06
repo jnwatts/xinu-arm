@@ -9,8 +9,8 @@
 // Comment out this define to enable case sensitivity
 #define CASE_INSENSITIVE
 
-#define MAXPATH 256
-#define MAXNAME 26
+#define MAXPATH 128
+#define MAXNAME 32
 
 #define NFSTYPES 5
 
