@@ -10,22 +10,22 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 	strcpy(header->objName, path);
 	header->refCount = 1;
 
-	ListInit(dir->children);
+	ListInit(&dir->children);
 	return header;
 }
 
 int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info)
 {
-	*info = {};
+	*info = (ObjectInfo){0};
 }
 
 int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
 {
-	fsNative_Dir dir = GetObjectCustomData(obj);
+	fsNative_Dir* dir = GetObjectCustomData(obj);
 	for (int i = 0; i < dir->children.count; i++)
 	{
 		ObjectHeader* child;
-		ListGet(dir->children, i, &child);
+		ListGet(&dir->children, i, (void**)&child);
 		if (!strcmp(child->objName, path))
 		{
 			child->refCount++;
@@ -38,12 +38,12 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj)
 
 int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer)
 {
-	fsNative_Dir dir = GetObjectCustomData(obj);
+	fsNative_Dir* dir = GetObjectCustomData(obj);
 	ObjectHeader* child = NULL;
-	if (index >= dir->children->count)
+	if (index >= dir->children.count)
 		return ERR_NO_MORE_ENTRIES;
 
-	ListGet(dir->children, index, &child);
+	ListGet(&dir->children, index, (void**)&child);
 	strcpy(buffer, child->objName);
 	return OK;
 }

@@ -223,7 +223,7 @@ errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS acce
 
 	// Find the object referred to by the path
 	ObjectHeader* currObj = RootDir;
-	ObjectType* currObjType = &ObjectType[currObj->objType];
+	ObjectType* currObjType = &ObjectTypes[currObj->objType];
 
 	// Fake "opening" the root object, to allow it to be closed
 	currObj->refCount++;
