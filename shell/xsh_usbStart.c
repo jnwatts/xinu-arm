@@ -66,7 +66,7 @@ shellcmd xsh_usbStart(int nargs, char *args[])
         if(usb_init() == 0)
 			kprintf("USB Started Successfully\n\r");
 		else
-			kprintf("USB Failed to start\r\n");@
+			kprintf("USB Failed to start\r\n");
 		
     }
 
