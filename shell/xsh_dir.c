@@ -41,7 +41,7 @@ shellcmd xsh_dir(int nargs, char *args[])
     }
 
     fshandle handle;
-    errcode err = OpenFile(nargs > 1 ? args[1] : ".", &handle, FSMODE_OPEN | FSMODE_DIR, FSACCESS_READ);
+    errcode err = CreateFile(nargs > 1 ? args[1] : ".", &handle, FSMODE_OPEN | FSMODE_DIR, FSACCESS_READ);
 
     if (err)
     {

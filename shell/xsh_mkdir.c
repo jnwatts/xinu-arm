@@ -41,7 +41,7 @@ shellcmd xsh_mkdir(int nargs, char *args[])
     }
 
     fshandle handle;
-    errcode err = OpenFile(args[1], &handle, FSMODE_OPENORCREATE | FSMODE_DIR, FSACCESS_READWRITE);
+    errcode err = CreateFile(args[1], &handle, FSMODE_OPENORCREATE | FSMODE_DIR, FSACCESS_READWRITE);
 
     if (err)
     {
