@@ -47,7 +47,7 @@ errcode CloseObject(ObjectHeader* header)
 	// Decrement the reference count and delete the object if it isn't referenced by anyone
 	if (--header->refCount <= 0)
 	{
-		free(header);
+		//free(header);
 	}
 
 	return err;
