@@ -33,7 +33,7 @@ void *memmove(void *s, const void *ct, int n)
 	else
 	{
 		dst = ((char*)s) + (n - 1);
-		src = ((char*)ct) + (n - 1)
+		src = ((char*)ct) + (n - 1);
 		for (i = 0; i < n; i++)
     	{
         	*dst++ = *src++;

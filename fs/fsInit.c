@@ -281,7 +281,7 @@ errcode OpenObject(char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS acce
 
 		// Open the sub-object
 		ObjectHeader* nextObj = NULL;
-		err = currObjType->openObj(currObj, compareBuffer, &newObj, mode, access);
+		err = currObjType->openObj(currObj, compareBuffer, &nextObj, mode, access);
 		if (err || !nextObj)
 		{
 			err = err ? err : ERR_FILE_NOT_FOUND;
