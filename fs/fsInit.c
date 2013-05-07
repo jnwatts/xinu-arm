@@ -16,7 +16,7 @@ fshandle NextHandle = 1;
 
 void* zmalloc(size_t size)
 {
-	void* ret = zmalloc(size);
+	void* ret = malloc(size);
 	memset(ret, 0, size);
 	return ret;
 }
