@@ -130,9 +130,15 @@ int nulluser(void)
     /* enable interrupts here */
     enable();
 
+#if 0
     ready(create
           ((void *)main, INITSTK, INITPRIO, "MAIN", 2, 0,
            NULL), RESCHED_YES);
+#else // Quick hack to fix bug in ctxsw for raspberry-pi: First resched *MUST* be called from an IRQ!!!
+    ready(create
+          ((void *)main, INITSTK, INITPRIO, "MAIN", 2, 0,
+           NULL), RESCHED_NO);
+#endif
 
     while (TRUE)
     {
@@ -197,6 +203,7 @@ static int sysinit(void)
     thrptr->stkptr = 0;
     thrptr->memlist.next = NULL;
     thrptr->memlist.length = 0;
+    strncpy(thrptr->currdir, "/", 2);
     thrcurrent = NULLTHREAD;
 
     kprintf("&_end is 0x%x\r\n", &_end);
@@ -287,6 +294,8 @@ static int sysinit(void)
     gpioLEDOn(GPIO_LED_CISCOWHT);
 #endif
 #endif
+
+    fsInit();
 
     kprintf("done with sysinit()\r\n");
 

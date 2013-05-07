@@ -20,5 +20,6 @@ int memcmp(const void *, const void *, int);
 void *memcpy(void *, const void *, int);
 void *memchr(const void *, int, int);
 void *memset(void *, int, int);
+void *memmove(void *, const void *, int);
 
 #endif                          /* _STRING_H_ */

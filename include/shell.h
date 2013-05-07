@@ -97,5 +97,9 @@ shellcmd xsh_printtos(int, char *[]);
 shellcmd xsh_printprocstks(int, char *[]);
 shellcmd xsh_ledon(int, char*[]);
 shellcmd xsh_ledoff(int, char*[]);
+shellcmd xsh_cd(int, char*[]);
+shellcmd xsh_pwd(int, char*[]);
+shellcmd xsh_mkdir(int, char*[]);
+shellcmd xsh_dir(int, char*[]);
 
 #endif                          /* _SHELL_H_ */

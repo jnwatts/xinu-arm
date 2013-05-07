@@ -28,7 +28,7 @@ void ListAdd(List* header, void* item)
 {
 	int count = header->count;
 	header->count++;
-	while (count >= ENTRIES_PER_LIST)
+	while (count > ENTRIES_PER_LIST)
 	{
 		if (header->next == NULL)
 		{

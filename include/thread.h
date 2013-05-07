@@ -15,6 +15,7 @@
 #include <platform.h>
 #include <stddef.h>
 #include <memory.h>
+ #include <filesystem.h>
 
 /* unusual value marks the top of the thread stack                      */
 #define STACKMAGIC  0x0A0AAAA9
@@ -75,6 +76,7 @@ struct thrent
     bool hasmsg;                /**< nonzero iff msg is valid           */
     struct memblock memlist;    /**< free memory list of thread         */
     int fdesc[NDESC];           /**< device descriptors for thread      */
+    char currdir[MAXPATH];      /**< working directory for thread       */
 };
 
 extern struct thrent thrtab[];
