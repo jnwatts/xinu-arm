@@ -38,7 +38,7 @@ BUGFLAG = -gstabs+
 
 # C compilation flags
 CFLAGS = -O0 -Wall -Wstrict-prototypes -Wno-trigraphs    \
-        -std=gnu99 \
+        -std=gnu99 -Wformat -Wreturn-type -Werror=return-type -Werror=format \
        -nostdinc -fno-builtin -fno-strict-aliasing -fno-common \
         -fomit-frame-pointer -fno-pic -ffunction-sections \
         ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c
