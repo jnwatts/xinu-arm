@@ -14,6 +14,13 @@ ObjectType ObjectTypes[NFSTYPES];
 HashTable OpenHandles;
 fshandle NextHandle = 1;
 
+void* zmalloc(size_t size)
+{
+	void* ret = zmalloc(size);
+	memset(ret, 0, size);
+	return ret;
+}
+
 fshandle CreateHandle(ObjectHeader* header)
 {
 	fshandle handle = NextHandle++;
@@ -122,7 +129,7 @@ errcode EnumFiles(fshandle handle, int index, char* buffer)
 
 void AddObjectType(ObjectType* type)
 {
-	/*ObjectType* newType = malloc(sizeof(ObjectType));
+	/*ObjectType* newType = zmalloc(sizeof(ObjectType));
 	*newType = *type;
 	ListAdd(&ObjectTypes, newType);*/
 	ObjectTypes[type->typeId] = *type;
@@ -232,7 +239,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 {
 	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
-	char* pathCopy = malloc(MAXPATH + 1);
+	char* pathCopy = zmalloc(MAXPATH + 1);
 	pathCopy[0] = 0;
 	errcode err = SUCCESS;
 
@@ -241,7 +248,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	// Copy the path onto the stack, prepending the working directory for relative paths
 	if (path[0] != PATH_SEPARATOR)
 	{
-		strncpy(pathCopy, thrtab[thrcurrent].currdir, MAXPATH);
+		strncpy(pathCopy, GetWorkingDirectory(), MAXPATH);
 		strncat(pathCopy, "/", MAXPATH);
 		strncat(pathCopy, path, MAXPATH);
 	}
@@ -360,7 +367,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 
 errcode ChangeWorkingDirectory(char* path)
 {
-	char* pathCopy = malloc(MAXPATH + 1);
+	char* pathCopy = zmalloc(MAXPATH + 1);
 	ObjectHeader* header;
 	errcode err = OpenObject(path, pathCopy, &header, FSMODE_OPEN | FSMODE_DIR, FSACCESS_READ);
 	if (!err)
@@ -372,11 +379,18 @@ errcode ChangeWorkingDirectory(char* path)
 	return err;
 }
 
+char* GetWorkingDirectory()
+{
+	return thrtab[thrcurrent].currdir;
+}
+
 ObjectHeader* AllocateObjectHeader(int extraBytes)
 {
-	ObjectHeader* ret = malloc(sizeof(ObjectHeader));
-	ret->extraData = malloc(extraBytes);
+	ObjectHeader* ret = zmalloc(sizeof(ObjectHeader));
+
+	ret->extraData = zmalloc(extraBytes);
 	ret->extraBytes = extraBytes;
+	return ret;
 }
 
 void* GetObjectCustomData(ObjectHeader* header)

@@ -112,6 +112,7 @@ errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
 errcode EnumFiles(fshandle handle, int index, char* buffer);
 errcode ChangeWorkingDirectory(char* path);
+char* GetWorkingDirectory();
 
 // Internal filesystem API
 void fsInit();
@@ -127,6 +128,9 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer);
 int fsNative_deleteObj(ObjectHeader* obj);
 int fsNative_close(ObjectHeader* obj);
+
+// Zeroing malloc
+void* zmalloc(size_t size);
 
 extern ObjectType ObjectTypes[];
 extern List OpenObjects;
