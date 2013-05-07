@@ -8,15 +8,17 @@
 
 // Comment out this define to enable case sensitivity
 #define CASE_INSENSITIVE
+typedef enum
+{
+	FSTYPE_NATIVE,
+	FSTYPE_DEV,
+	FSTYPE_THREAD,
+
+	NFSTYPES
+} FSTYPE;
 
 #define MAXPATH 128
 #define MAXNAME 32
-
-#define NFSTYPES 5
-
-#define FSTYPE_NATIVE	1
-#define FSTYPE_DEV		2
-#define FSTYPE_THREAD	3
 
 #define ERR_REPARSE_PATH	-100
 #define ERR_FILE_NOT_FOUND	-101
