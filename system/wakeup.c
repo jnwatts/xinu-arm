@@ -21,7 +21,3 @@ void wakeup(void)
         ready(dequeue(sleepq), RESCHED_NO);
     }
 }
-
-void testFn()
-{
-}
