@@ -32,30 +32,30 @@ int fsDev_openObj(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE m
 		return ERR_ACCESS_DENIED;
 
 	fsDev_Data* data = GetObjectCustomData(obj);
-
+	return SUCCESS;
 }
 
 int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 {
-
+	return SUCCESS;
 }
 
 int fsDev_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
 {
-
+	return SUCCESS;
 }
 
 int fsDev_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
 {
-
+	return SUCCESS;
 }
 
 int fsDev_deleteObj(ObjectHeader* obj)
 {
-
+	return SUCCESS;
 }
 
 int fsDev_close(ObjectHeader* obj)
 {
-
+	return SUCCESS;
 }

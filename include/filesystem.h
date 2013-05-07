@@ -112,10 +112,10 @@ errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
 errcode EnumFiles(fshandle handle, int index, char* buffer);
 errcode ChangeWorkingDirectory(char* path);
-char* GetWorkingDirectory();
+char* GetWorkingDirectory(void);
 
 // Internal filesystem API
-void fsInit();
+void fsInit(void);
 fshandle CreateHandle(ObjectHeader* header);
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
 void AddObjectType(ObjectType* type);

@@ -379,7 +379,7 @@ errcode ChangeWorkingDirectory(char* path)
 	return err;
 }
 
-char* GetWorkingDirectory()
+char* GetWorkingDirectory(void)
 {
 	return thrtab[thrcurrent].currdir;
 }
@@ -398,7 +398,7 @@ void* GetObjectCustomData(ObjectHeader* header)
 	return header->extraData;
 }
 
-void fsInit()
+void fsInit(void)
 {
 	memset(ObjectTypes, 0, ARRAYSIZE(ObjectTypes));
 	HashInit(&OpenHandles);
