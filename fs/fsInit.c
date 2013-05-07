@@ -266,7 +266,10 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	// Preprocessing can indicate an invalid path by setting the first character to null
 	// This also handles zero-length paths
 	if (!pathCopy[0])
+	{
+		free(pathCopy);
 		return ERR_FILE_NOT_FOUND;
+	}
 
 	kprintf("Processed path: %s\n", pathCopy);
 
@@ -375,6 +378,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		*newObj = currObj;
 	}
 
+	free(pathCopy);
 	return err;
 }
 
@@ -388,7 +392,7 @@ errcode ChangeWorkingDirectory(char* path)
 		strncpy(thrtab[thrcurrent].currdir, pathCopy, MAXPATH);
 		CloseObject(header);
 	}
-
+	free(pathCopy);
 	return err;
 }
 
