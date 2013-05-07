@@ -17,6 +17,8 @@ fshandle NextHandle = 1;
 void* zmalloc(size_t size)
 {
 	void* ret = malloc(size);
+	if (!ret)
+		kprintf("OUT OF MEMORY?!?!?! BEEP BOOP EXPLODE\n");
 	memset(ret, 0, size);
 	return ret;
 }
@@ -30,7 +32,7 @@ fshandle CreateHandle(ObjectHeader* header)
 
 errcode CloseFile(fshandle handle)
 {
-	//kprintf("CloseFile(%d)\n", handle);
+	kprintf("CloseFile(%d)\n", handle);
 
 	ObjectHeader* header = NULL;
 	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
@@ -44,7 +46,7 @@ errcode CloseFile(fshandle handle)
 
 errcode CloseObject(ObjectHeader* header)
 {
-	//kprintf("CloseObject(%d)\n", header);
+	kprintf("CloseObject(%d)\n", header);
 
 	if (!header)
 		return SUCCESS;
@@ -54,7 +56,7 @@ errcode CloseObject(ObjectHeader* header)
 	// Decrement the reference count and delete the object if it isn't referenced by anyone
 	if (--header->refCount <= 0)
 	{
-		//free(header);
+		free(header);
 	}
 
 	return err;
@@ -62,7 +64,7 @@ errcode CloseObject(ObjectHeader* header)
 
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
-	//kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
+	kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
 
 	ObjectHeader* header = NULL;
 	errcode result = OpenObject(path, NULL, &header, mode, access);
@@ -237,7 +239,7 @@ static void PreprocessPath(char* path)
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
+	kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
 	char* pathCopy = zmalloc(MAXPATH + 1);
 	pathCopy[0] = 0;
@@ -251,6 +253,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		strncpy(pathCopy, GetWorkingDirectory(), MAXPATH);
 		strncat(pathCopy, "/", MAXPATH);
 		strncat(pathCopy, path, MAXPATH);
+		kprintf("Built initial path: %s\n", pathCopy);
 	}
 	else
 	{
@@ -264,6 +267,8 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	// This also handles zero-length paths
 	if (!pathCopy[0])
 		return ERR_FILE_NOT_FOUND;
+
+	kprintf("Processed path: %s\n", pathCopy);
 
 	if (actualPath)
 		strncpy(actualPath, pathCopy, MAXPATH);
@@ -291,11 +296,11 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
 		if (segLength == 0)
 		{
-			//kprintf("done with path\n");
+			kprintf("Done with path\n");
 			break;
 		}
 
-		//kprintf("Segment: %.*s\n", segLength, currSeg);
+		kprintf("Segment: %.*s\n", segLength, currSeg);
 		
 #ifdef ENUM_TO_OPEN
 		int foundName = FALSE;
@@ -329,9 +334,16 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 			err = ERR_FILE_NOT_FOUND;
 			break;
 		}
+
+#ifdef CASE_INSENSITIVE
+		strncpy(compareBuffer, currSeg, segLength);
+		compareBuffer[segLength] = 0;
+#endif
+
 #else
 		// Copy the segment into a buffer as a string
 		strncpy(compareBuffer, currSeg, segLength);
+		compareBuffer[segLength] = 0;
 #endif
 
 		// Open the sub-object
@@ -354,6 +366,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 
 	if (err)
 	{
+		kprintf("OpenObject returning error %d\n", err);
 		if (currObj)
 			CloseObject(currObj);
 	}

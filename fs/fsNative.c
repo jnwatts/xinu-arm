@@ -23,6 +23,8 @@ int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info)
 
 int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
+	kprintf("fsNative_openObj(%d, %s, _, %d, %d)\n", obj, path, mode, access);
+
 	fsNative_Dir* dir = GetObjectCustomData(obj);
 	for (int i = 0; i < dir->children.count; i++)
 	{
@@ -42,6 +44,7 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 	// Create a new entry if requested
 	if ((mode & FSMODE_BASIC_MASK) != FSMODE_OPEN)
 	{
+		kprintf("Creating new native object\n");
 		*newObj = fsNative_CreateHeader(path);
 		ListAdd(&dir->children, *newObj);
 		(*newObj)->refCount++;
