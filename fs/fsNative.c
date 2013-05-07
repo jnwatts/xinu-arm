@@ -18,6 +18,7 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info)
 {
 	*info = (ObjectInfo){0};
+	return SUCCESS;
 }
 
 int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
@@ -75,5 +76,5 @@ int fsNative_close(ObjectHeader* obj)
 
 int fsNative_mountObj(ObjectHeader* obj)
 {
-
+	return SUCCESS;
 }

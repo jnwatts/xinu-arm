@@ -24,6 +24,7 @@ ObjectHeader* fsDev_CreateHeader(char* path, int isRoot, int devIndex)
 int fsDev_getInfo(ObjectHeader* obj, ObjectInfo* info)
 {
 	*info = (ObjectInfo) {0};
+	return SUCCESS;
 }
 
 int fsDev_openObj(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
