@@ -24,6 +24,7 @@ int myprogA(int argc, char** argv)
 	} else if (part == 3) {
 		printprocstks();
 	}
+	return 0;
 }
 
 void myfuncA(void)

@@ -37,11 +37,11 @@ INCLUDE  = -I../include -I../system/platforms/${PLATFORM}
 BUGFLAG = -gstabs+
 
 # C compilation flags
-CFLAGS = -O0 -Wall -Wstrict-prototypes -Wno-trigraphs    \
-        -std=gnu99 \
-       -nostdinc -fno-builtin -fno-strict-aliasing -fno-common \
-        -fomit-frame-pointer -fno-pic -ffunction-sections \
-        ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c
+CFLAGS = -O0 -std=gnu99 -Wall -Wstrict-prototypes -Wno-trigraphs    \
+         -Wformat -Wreturn-type -Werror=return-type -Werror=format -Werror=strict-prototypes \
+         -nostdinc -fno-builtin -fno-strict-aliasing -fno-common \
+         -fomit-frame-pointer -fno-pic -ffunction-sections \
+         ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c
 
 # Assembler flags
 ASFLAGS  = ${INCLUDE} ${DEBUG}

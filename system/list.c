@@ -28,7 +28,7 @@ void ListAdd(List* header, void* item)
 {
 	int count = header->count;
 	header->count++;
-	while (count > ENTRIES_PER_LIST)
+	while (count >= ENTRIES_PER_LIST)
 	{
 		if (header->next == NULL)
 		{
@@ -44,8 +44,8 @@ void ListAdd(List* header, void* item)
 
 void ListInsert(List* header, int index, void* item)
 {
-	int count = header->count;
-	void* displaced;
+	int count = header->count + 1;
+	void* displaced = item;
 
 	// Just call add if this index is at the end
 	if (index >= count)
@@ -63,25 +63,25 @@ void ListInsert(List* header, int index, void* item)
 			header->next->count = 0;
 			header->next->next = NULL;
 		}
+		header = header->next;
 		count -= ENTRIES_PER_LIST;
 		index -= ENTRIES_PER_LIST;
 	}
 
-	// Insert into the first run
-	displaced = header->entries[ENTRIES_PER_LIST - 1];
-	memmove(&header->entries[index + 1], &header->entries[index], sizeof(void*) * (ENTRIES_PER_LIST - index - 1));
-
 	while (count > 0)
 	{
-		// Displace each run by 1
+		// Insert into the first run
 		void* newDisplaced = header->entries[ENTRIES_PER_LIST - 1];
-		memmove(&header->entries[1], &header->entries[0], sizeof(void*) * (ENTRIES_PER_LIST - 1));
-		header->entries[0] = displaced;
+		memmove(&header->entries[index + 1], &header->entries[index], sizeof(void*) * (ENTRIES_PER_LIST - index - 1));
+
+		// Displace each run by 1
+		header->entries[index] = displaced;
 		displaced = newDisplaced;
 
+		index = 0;
 		count -= ENTRIES_PER_LIST;
 
-		if (!header->next)
+		if (count > 0 && !header->next)
 		{
 			header->next = (List*)malloc(sizeof(List));
 			header->next->count = 0;
@@ -126,6 +126,11 @@ void ListRemoveAt(List* header, int index)
 {
 	int totalCount = header->count;
 
+	if (index < 0 || index >= totalCount)
+		return;
+
+	header->count--;
+
 	// Find the list with the entry
 	while (index >= ENTRIES_PER_LIST)
 	{
@@ -137,21 +142,20 @@ void ListRemoveAt(List* header, int index)
 	// Remove the entry
 	do
 	{
-		memmove(&header->entries[index], &header->entries[index + 1], ENTRIES_PER_LIST - index - 1);
+		memmove(&header->entries[index], &header->entries[index + 1], sizeof(void*) * (ENTRIES_PER_LIST - index - 1));
 		index = 0;
 		if (header->next)
 		{
 			header->entries[ENTRIES_PER_LIST - 1] = header->next->entries[0];
 			totalCount -= ENTRIES_PER_LIST;
-			header = header->next;
+
+			if (totalCount == 1)
+			{
+				free(header->next);
+				header->next = NULL;
+			}
 		}
-		else if (totalCount == 1)
-		{
-			free(header);
-			header = NULL;
-		}
-		else
-			header = NULL;
+		header = header->next;
 		
 	} while (header);
 }

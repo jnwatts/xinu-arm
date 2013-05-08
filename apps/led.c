@@ -6,14 +6,14 @@
 
 #define GPIO_LED_ACT 16
 
-void ledOn()
+void ledOn(void)
 {
 	GPIOMODE(GPIO_LED_ACT, FSEL_OUTPUT);
 	GPIOCLR(GPIO_LED_ACT);
 	return 0;
 }
 
-void ledOff()
+void ledOff(void)
 {
 	GPIOMODE(GPIO_LED_ACT, FSEL_OUTPUT);
 	GPIOSET(GPIO_LED_ACT);

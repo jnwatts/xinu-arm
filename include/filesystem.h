@@ -8,15 +8,17 @@
 
 // Comment out this define to enable case sensitivity
 #define CASE_INSENSITIVE
+typedef enum
+{
+	FSTYPE_NATIVE,
+	FSTYPE_DEV,
+	FSTYPE_THREAD,
+
+	NFSTYPES
+} FSTYPE;
 
 #define MAXPATH 128
 #define MAXNAME 32
-
-#define NFSTYPES 5
-
-#define FSTYPE_NATIVE	1
-#define FSTYPE_DEV		2
-#define FSTYPE_THREAD	3
 
 #define ERR_REPARSE_PATH	-100
 #define ERR_FILE_NOT_FOUND	-101
@@ -110,9 +112,10 @@ errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
 errcode EnumFiles(fshandle handle, int index, char* buffer);
 errcode ChangeWorkingDirectory(char* path);
+char* GetWorkingDirectory(void);
 
 // Internal filesystem API
-void fsInit();
+void fsInit(void);
 fshandle CreateHandle(ObjectHeader* header);
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
 void AddObjectType(ObjectType* type);
@@ -125,6 +128,9 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer);
 int fsNative_deleteObj(ObjectHeader* obj);
 int fsNative_close(ObjectHeader* obj);
+
+// Zeroing malloc
+void* zmalloc(size_t size);
 
 extern ObjectType ObjectTypes[];
 extern List OpenObjects;
