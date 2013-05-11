@@ -6,14 +6,7 @@
 
 void clkdelay(ulong cycles)
 {
-	ulong endtime;
-	long diff;
-
-	endtime = TIMER_CLO + cycles;
-
-	do {
-		ulong now = TIMER_CLO + cycles;
-		diff = endtime - now;
-	} while (diff >= 0);
+	ulong endtime = TIMER_CLO + cycles;
+	while (TIMER_CLO < endtime);
 }
 
