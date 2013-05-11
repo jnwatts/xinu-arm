@@ -814,41 +814,65 @@ int usb_new_device(struct usb_device *dev)
 	 * some more, or keeps on retransmitting the 8 byte header. */
 
 	desc = (struct usb_device_descriptor *)tmpbuf;
-	dev->descriptor.bMaxPacketSize0 = 64;	    /* Start off at 64 bytes  */
-	/* Default to 64 byte max packet size */
-	dev->maxpacketsize = PACKET_SIZE_64;
-	dev->epmaxpacketin[0] = 64;
-	dev->epmaxpacketout[0] = 64;
+	int size = 64;
+	int found = 0;
+	do {
+		dev->descriptor.bMaxPacketSize0 = size;	    /* Start off at 64 bytes  */
+		/* Default to 64 byte max packet size */
+		switch (size) {
+		case 8:
+			dev->maxpacketsize  = PACKET_SIZE_8;
+			break;
+		case 16:
+			dev->maxpacketsize = PACKET_SIZE_16;
+			break;
+		case 32:
+			dev->maxpacketsize = PACKET_SIZE_32;
+			break;
+		case 64:
+			dev->maxpacketsize = PACKET_SIZE_64;
+			break;
+		default:
+			kprintf("Unexpected packet size: %d\n", dev->descriptor.bMaxPacketSize0);
+			return 1;
+		}
+		dev->epmaxpacketin[0] = size;
+		dev->epmaxpacketout[0] = size;
 
-	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
-	if (err < 0) {
-		USB_PRINTF("usb_new_device: usb_get_descriptor() failed\r\n");
-		return 1;
-	}
+		err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, size);
+		if (err < 0) {
+			USB_PRINTF("usb_new_device: usb_get_descriptor() failed\r\n");
+		} else {
+			dev->descriptor.bMaxPacketSize0 = desc->bMaxPacketSize0;
+			found = 1;
+		}
 
-	dev->descriptor.bMaxPacketSize0 = desc->bMaxPacketSize0;
+		/* find the port number we're at */
+		if (parent) {
+			int j;
 
-	/* find the port number we're at */
-	if (parent) {
-		int j;
+			for (j = 0; j < parent->maxchild; j++) {
+				if (parent->children[j] == dev) {
+					port = j;
+					break;
+				}
+			}
+			if (port < 0) {
+				kprintf("usb_new_device:cannot locate device's port.\r\n");
+				return 1;
+			}
 
-		for (j = 0; j < parent->maxchild; j++) {
-			if (parent->children[j] == dev) {
-				port = j;
-				break;
+			/* reset the port for the second time */
+			err = hub_port_reset(dev->parent, port, &portstatus);
+			if (err < 0) {
+				kprintf("\r\n     Couldn't reset port %d\r\n", port);
+				return 1;
 			}
 		}
-		if (port < 0) {
-			kprintf("usb_new_device:cannot locate device's port.\r\n");
-			return 1;
-		}
-
-		/* reset the port for the second time */
-		err = hub_port_reset(dev->parent, port, &portstatus);
-		if (err < 0) {
-			kprintf("\r\n     Couldn't reset port %d\n", port);
-			return 1;
-		}
+	} while (!found && (size /= 2) > 4);
+	if (err < 0 || !found) {
+		kprintf("\r\n     Couldn't determine max packet size for port %d\r\n", port);
+		return 1;
 	}
 #endif
 
