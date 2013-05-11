@@ -158,7 +158,7 @@ static struct usb_hub_device *usb_hub_allocate(void)
 	if (usb_hub_index < USB_MAX_HUB)
 		return &hub_dev[usb_hub_index++];
 
-	printf("ERROR: USB_MAX_HUB (%d) reached\r\n", USB_MAX_HUB);
+	kprintf("ERROR: USB_MAX_HUB (%d) reached\r\n", USB_MAX_HUB);
 	return NULL;
 }
 

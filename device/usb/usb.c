@@ -13,6 +13,9 @@
 #include <unaligned/le_byteshift.h>
 #include "../system/platforms/raspberry-pi/gpio.h"
 
+#undef USB_PRINTF
+#define USB_PRINTF kprintf
+
 #ifdef DEBUG
 #define USB_DEBUG	1
 #define USB_HUB_DEBUG	1
@@ -864,6 +867,9 @@ int usb_new_device(struct usb_device *dev)
 	case 64:
 		dev->maxpacketsize = PACKET_SIZE_64;
 		break;
+	default:
+		kprintf("Unexpected packet size: %d\n", dev->descriptor.bMaxPacketSize0);
+		return 1;
 	}
 	dev->devnum = addr;
 

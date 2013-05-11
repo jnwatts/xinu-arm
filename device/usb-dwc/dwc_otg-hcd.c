@@ -93,7 +93,7 @@ void handle_error(int line, uint32_t d)
 	hcint_data_t hcint;
 	hcint.d32 = d;
 
-	kprintf("Error condition at line %d: ", line);
+	kprintf("Error condition in %s at line %d: ", __FILE__, line);
 	if (hcint.b.ahberr)
 		kprintf(" AHBERR");
 	if (hcint.b.stall)
@@ -692,6 +692,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	/* TODO: check for error */
 	if (!(hcint_new.b.chhltd && hcint_new.b.xfercomp)) {
 		handle_error(__LINE__, hcint_new.d32);
+		done = -1;
 		goto out;
 	}
 
@@ -806,7 +807,7 @@ out:
 int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int len, int interval)
 {
-	kprintf("dev = %p pipe = %#lx buf = %p size = %d int = %d\r\n", dev, pipe,
+	kprintf("dev = %x pipe = %x buf = %x size = %d int = %d\r\n", dev, pipe,
 	       buffer, len, interval);
 	return -1;
 }
