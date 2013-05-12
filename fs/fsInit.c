@@ -272,7 +272,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	}
 
 	// Remove trailing slashes
-	int pathLen = strlen(pathCopy);
+	int pathLen = strnlen(pathCopy, MAXPATH);
 	if (pathLen > 1 && pathCopy[pathLen - 1] == PATH_SEPARATOR)
 	{
 		pathCopy[pathLen - 1] = 0;
