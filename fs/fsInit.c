@@ -271,6 +271,14 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		return ERR_FILE_NOT_FOUND;
 	}
 
+	// Remove trailing slashes
+	int pathLen = strlen(pathCopy);
+	if (pathLen > 1 && pathCopy[pathLen - 1] == PATH_SEPARATOR)
+	{
+		pathCopy[pathLen - 1] = 0;
+		pathLen--;
+	}
+
 	kprintf("Processed path: %s\n", pathCopy);
 
 	if (actualPath)
@@ -302,6 +310,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 			kprintf("Done with path\n");
 			break;
 		}
+		int hasMoreSegments = currSeg[segLength] == PATH_SEPARATOR;
 
 		kprintf("Segment: %.*s\n", segLength, currSeg);
 		
@@ -351,7 +360,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 
 		// Open the sub-object
 		ObjectHeader* nextObj = NULL;
-		err = currObjType->openObj(currObj, compareBuffer, &nextObj, mode, access);
+		err = currObjType->openObj(currObj, compareBuffer, &nextObj, hasMoreSegments ? (FSMODE)(FSMODE_OPEN | FSMODE_DIR) : mode, hasMoreSegments ? FSACCESS_INFO : access);
 		if (err || !nextObj)
 		{
 			err = err ? err : ERR_FILE_NOT_FOUND;
@@ -405,7 +414,7 @@ ObjectHeader* AllocateObjectHeader(int extraBytes)
 {
 	ObjectHeader* ret = zmalloc(sizeof(ObjectHeader));
 
-	ret->extraData = zmalloc(extraBytes);
+	ret->extraData = extraBytes ? zmalloc(extraBytes) : NULL;
 	ret->extraBytes = extraBytes;
 	return ret;
 }

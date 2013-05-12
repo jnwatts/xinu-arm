@@ -128,6 +128,9 @@ int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMOD
 int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer);
 int fsNative_deleteObj(ObjectHeader* obj);
 int fsNative_close(ObjectHeader* obj);
+int fsNative_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
+int fsNative_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
+int fsNative_mountObj(ObjectHeader* obj, ObjectHeader* mountedObj);
 
 // Zeroing malloc
 void* zmalloc(size_t size);
