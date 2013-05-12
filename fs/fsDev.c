@@ -53,12 +53,12 @@ int fsDev_openObj(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE m
 
 int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 {
-	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(header);
+	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(obj);
 
 	if (!data->isRoot || index >= NDEVS)
 		return ERR_NO_MORE_ENTRIES;
 
-	strcpy(buffer, devtab[index].name);
+	strncpy(buffer, devtab[index].name, MAXNAME);
 
 	return SUCCESS;
 }
@@ -89,7 +89,7 @@ int fsDev_initRoot(ObjectHeader** newRoot, void* mountArg)
 	return SUCCESS;
 }
 
-void fsDev_init()
+void fsDev_init(void)
 {
 	ObjectType type =
 	{

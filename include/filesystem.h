@@ -140,6 +140,9 @@ int fsNative_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len,
 int fsNative_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
 int fsNative_mountObj(ObjectHeader* obj, ObjectHeader* mountedObj);
 
+// Internal dev FS functions
+void fsDev_init(void);
+
 // Zeroing malloc
 void* zmalloc(size_t size);
 
