@@ -552,7 +552,7 @@ void fsInit(void)
 
 	// Create the root directory
 	ObjectTypes[FSTYPE_NATIVE].initRoot(&RootDir, NULL);
-	strncpy(RootDir->objName, "");
+	strncpy(RootDir->objName, "", MAXNAME);
 
 	// Mount the list of devices at /dev
 	MountFileSystem("/dev", FSTYPE_DEV, NULL);
