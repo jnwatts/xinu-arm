@@ -129,8 +129,12 @@ errcode EnumFiles(fshandle handle, int index, char* buffer)
 	return err;
 }
 
+static void PreprocessPath(char*);
+
 errcode MountFileSystem(char* mountPoint, int typeId, void* mountArg)
 {
+	//kprintf("MountFileSystem(%s, %d, %d)\r\n", mountPoint, typeId, (int)mountArg);
+
 	if (typeId >= NFSTYPES)
 		return ERR_INVALID_FS_TYPE;
 
@@ -143,6 +147,7 @@ errcode MountFileSystem(char* mountPoint, int typeId, void* mountArg)
 	// Reject invalid paths
 	if (pathCopy[0] == 0)
 	{
+		kprintf("Invalid path\r\n");
 		free(pathCopy);
 		return ERR_FILE_NOT_FOUND;
 	}
@@ -152,29 +157,38 @@ errcode MountFileSystem(char* mountPoint, int typeId, void* mountArg)
 	*lastSlash = 0;
 	lastSlash++;
 
+	//kprintf("Mounting file system inside \"%s\" with name \"%s\"\r\n", pathCopy, lastSlash);
+
 	// Open the folder that will contain the mount point
 	ObjectHeader* enclosingDir = NULL;
-	errcode err = OpenObject(pathCopy, NULL, &enclosingDir, (FSMODE)(FSMODE_OPEN | FSMODE_DIR), FSACCESS_INFO);
+	errcode err = OpenObject(*pathCopy == 0 ? "/" : pathCopy, NULL, &enclosingDir, (FSMODE)(FSMODE_OPEN | FSMODE_DIR), FSACCESS_INFO);
 	if (err || !enclosingDir)
 	{
+		kprintf("Failed to open enclosing directory\r\n");
 		free(pathCopy);
 		return err ? err : ERR_FILE_NOT_FOUND;
 	}
+
+	//kprintf("Creating root object\r\n");
 
 	// Create the root of the new filesystem
 	ObjectHeader* newRoot = NULL;
 	err = ObjectTypes[typeId].initRoot(&newRoot, mountArg);
 	if (err || !newRoot)
 	{
+		kprintf("Failed to create root\r\n");
 		CloseObject(enclosingDir);
 		free(pathCopy);
 		return err ? err : ERR_UNKNOWN;
 	}
 
+	//kprintf("Mounting into enclosing FS\r\n");
+
 	// Assign the new object a place in the enclosing filesystem
 	err = ObjectTypes[enclosingDir->objType].mountObj(enclosingDir, newRoot);
 	if (err)
 	{
+		kprintf("Failed to mount into enclosing FS\r\n");
 		CloseObject(newRoot);
 	}
 
@@ -347,7 +361,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 	currObj->refCount++;
 
 	char* currSeg = pathCopy;
-	char compareBuffer[MAXNAME + 1];
+	char compareBuffer[MAXNAME + 1] = {0};
 	int segLength;
 	while (*currSeg)
 	{
@@ -491,7 +505,8 @@ void fsInit(void)
 		.openObj = fsNative_openObj,
 		.enumEntries = fsNative_enumEntries,
 		.deleteObj = fsNative_deleteObj,
-		.close = fsNative_close
+		.close = fsNative_close,
+		.mountObj = fsNative_mountObj
 	};
 	AddObjectType(&type);
 

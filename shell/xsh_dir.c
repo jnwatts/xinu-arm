@@ -24,12 +24,12 @@ shellcmd xsh_dir(int nargs, char *args[])
     /* Output help, if '--help' argument was supplied */
     if (nargs == 2 && strncmp(args[1], "--help", 7) == 0)
     {
-        printf("Usage: %s <dir>\n\n", args[0]);
+        printf("Usage: %s [dir]\n\n", args[0]);
         printf("Description:\n");
-        printf("\tChanges the current working directory.\n");
+        printf("\nEnumerates through files and subfolders of a directory.\n");
         printf("Options:\n");
         printf("\t--help\t display this help and exit\n");
-        printf("\t<dir>\t Sets the current working directory to this directory\n");
+        printf("\t[dir]\t Optionally, a directory to enumerate through. Defaults to the working directory.\n");
         return 1;
     }
 
@@ -52,7 +52,7 @@ shellcmd xsh_dir(int nargs, char *args[])
     }
     else
     {
-        char nameBuffer[MAXNAME];
+        char nameBuffer[MAXNAME] = {0};
         int i = 0;
         while (!EnumFiles(handle, i++, nameBuffer))
         {
