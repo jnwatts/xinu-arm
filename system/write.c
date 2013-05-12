@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <device.h>
+#include <filesystem.h>
 
 /**
  * write 1 or more bytes to a device
@@ -22,7 +23,7 @@ devcall write(int descrp, void *buffer, uint count)
 
     if (descrp >= NDEVS)
     {
-    	errcode err = WriteFile(descrip, buffer, count);
+    	errcode err = WriteFile(descrp, buffer, count);
     	return err ? SYSERR : OK;
     }
 

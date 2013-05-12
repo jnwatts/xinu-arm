@@ -374,7 +374,7 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
 				continue;
 			}
 
-			thrtab[child].fdesc[0] = fshandle;
+			thrtab[child].fdesc[0] = inHandle;
 		}
 		if (NULL == outname)
 		{

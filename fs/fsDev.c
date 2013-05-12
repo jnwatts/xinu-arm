@@ -95,7 +95,7 @@ int fsDev_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 	if (data->isRoot)
 		return ERR_ACCESS_DENIED;
 
-	return err = read(data->devIndex, buffer, len);
+	return read(data->devIndex, buffer, len);
 }
 
 int fsDev_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
@@ -120,8 +120,13 @@ int fsDev_close(ObjectHeader* obj)
 
 int fsDev_initRoot(ObjectHeader** newRoot, void* mountArg)
 {
-	*newRoot = fsDev_CreateHeader("dev", TRUE, -1);
+	*newRoot = fsDev_CreateHeader("", TRUE, -1);
 	return SUCCESS;
+}
+
+int fsDev_mountObj(ObjectHeader* obj, ObjectHeader* mountedObj)
+{
+	return ERR_ACCESS_DENIED;
 }
 
 void fsDev_init(void)
@@ -136,7 +141,8 @@ void fsDev_init(void)
 		.deleteObj = fsDev_deleteObj,
 		.close = fsDev_close,
 		.readObj = fsDev_readObj,
-		.writeObj = fsDev_writeObj
+		.writeObj = fsDev_writeObj,
+		.mountObj = fsDev_mountObj
 	};
 	AddObjectType(&type);
 }

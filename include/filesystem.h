@@ -126,19 +126,9 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 void AddObjectType(ObjectType* type);
 errcode CloseObject(ObjectHeader* header);
 
-// Internal native FS functions
-ObjectHeader* fsNative_CreateHeader(char* path);
-int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info);
-int fsNative_openObj(ObjectHeader* obj, char* path, ObjectHeader** newObj, FSMODE mode, FSACCESS access);
-int fsNative_enumEntries(ObjectHeader* obj, int index, char* buffer);
-int fsNative_deleteObj(ObjectHeader* obj);
-int fsNative_close(ObjectHeader* obj);
-int fsNative_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
-int fsNative_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
-int fsNative_mountObj(ObjectHeader* obj, ObjectHeader* mountedObj);
-
-// Internal dev FS functions
+// Internal FS init functions
 void fsDev_init(void);
+void fsNative_init(void);
 
 // Zeroing malloc
 void* zmalloc(size_t size);

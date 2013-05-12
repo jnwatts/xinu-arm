@@ -26,6 +26,12 @@ ObjectHeader* fsNative_CreateHeader(char* path)
 	return header;
 }
 
+int fsNative_initRoot(ObjectHeader** root, void* arg)
+{
+	*root = fsNative_CreateHeader("");
+	return SUCCESS;
+}
+
 int fsNative_getInfo(ObjectHeader* obj, ObjectInfo* info)
 {
 	ObjectInfo emptyInfo = {0};
@@ -105,4 +111,22 @@ int fsNative_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 int fsNative_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 {
 	return ERR_ACCESS_DENIED;
+}
+
+void fsNative_init(void)
+{
+	ObjectType type = 
+	{
+		.typeId = FSTYPE_NATIVE,
+		.initRoot = fsNative_initRoot,
+		.getInfo = fsNative_getInfo,
+		.openObj = fsNative_openObj,
+		.enumEntries = fsNative_enumEntries,
+		.deleteObj = fsNative_deleteObj,
+		.close = fsNative_close,
+		.mountObj = fsNative_mountObj,
+		.readObj = fsNative_readObj,
+		.writeObj = fsNative_writeObj
+	};
+	AddObjectType(&type);
 }

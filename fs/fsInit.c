@@ -121,7 +121,7 @@ errcode ReadFile(fshandle handle, char* buffer, int len)
 	void* filePos = 0;
 	HashGet(&OpenHandlePositions, handle, &filePos);
 
-	errcode err = ObjectTypes[header->objType].readObj(header, (fileptr)filePos, buffer, len);
+	err = ObjectTypes[header->objType].readObj(header, (fileptr)filePos, buffer, len);
 	if (err > 0)
 	{
 		filePos = (fileptr)filePos + err;
@@ -141,7 +141,7 @@ errcode WriteFile(fshandle handle, char* buffer, int len)
 	void* filePos = 0;
 	HashGet(&OpenHandlePositions, handle, &filePos);
 
-	errcode err = ObjectTypes[header->objType].writeObj(header, (fileptr)filePos, buffer, len);
+	err = ObjectTypes[header->objType].writeObj(header, (fileptr)filePos, buffer, len);
 	if (err > 0)
 	{
 		filePos = (fileptr)filePos + err;
@@ -546,26 +546,17 @@ void fsInit(void)
 	HashInit(&OpenHandles);
 	HashInit(&OpenHandlePositions);
 
-	// Register the native VFS object type
-	ObjectType type = 
-	{
-		.typeId = FSTYPE_NATIVE,
-		.getInfo = fsNative_getInfo,
-		.openObj = fsNative_openObj,
-		.enumEntries = fsNative_enumEntries,
-		.deleteObj = fsNative_deleteObj,
-		.close = fsNative_close,
-		.mountObj = fsNative_mountObj,
-		.readObj = fsNative_readObj,
-		.writeObj = fsNative_writeObj
-	};
-	AddObjectType(&type);
+	// Register the native VFS object types
+	fsNative_init();
+	fsDev_init();
 
 	// Create the root directory
-	RootDir = fsNative_CreateHeader("");
-
-	fsDev_init();
+	ObjectTypes[FSTYPE_NATIVE].initRoot(&RootDir, NULL);
+	strncpy(RootDir->objName, "");
 
 	// Mount the list of devices at /dev
 	MountFileSystem("/dev", FSTYPE_DEV, NULL);
+
+	// Mount the list of threads at /proc
+	//MountFileSystem("/proc", FSTYPE_PROC, NULL);
 }
