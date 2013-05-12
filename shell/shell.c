@@ -20,6 +20,10 @@
 #include <filesystem.h>
 
 const struct centry commandtab[] = {
+	{"usbStart", FALSE, xsh_usbStart},
+	{"kbdStart", FALSE, xsh_kbdStart},
+	{"usb", FALSE, xsh_usb},
+	
 
 	{"printtos", FALSE, xsh_printtos},
 	{"printprocstks", FALSE, xsh_printprocstks},
