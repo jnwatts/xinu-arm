@@ -44,10 +44,10 @@ syscall kill(tid_typ tid)
 #endif                          /* UHEAP_SIZE */
 
     // Close open file handles
-    if (thrent->fdesc[0] >= NDEVS)
-        CloseFile(thrent->fdesc[0]);
-    if (thrent->fdesc[1] >= NDEVS)
-        CloseFile(thrent->fdesc[1]);
+    if (thrptr->fdesc[0] >= NDEVS)
+        CloseFile(thrptr->fdesc[0]);
+    if (thrptr->fdesc[1] >= NDEVS)
+        CloseFile(thrptr->fdesc[1]);
 
     send(thrptr->parent, tid);
 
