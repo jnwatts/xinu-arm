@@ -354,9 +354,6 @@ static void PreprocessPath(char* path)
 	}
 }
 
-// Determines whether enumeration functions are called to validate sub-object naming
-//#define ENUM_TO_OPEN
-
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
 	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
@@ -426,53 +423,14 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		{
 			err = ERR_INVALID_NAME;
 		}
+		
 		int hasMoreSegments = currSeg[segLength] == PATH_SEPARATOR;
 
 		//kprintf("Segment: %.*s\n", segLength, currSeg);
 		
-#ifdef ENUM_TO_OPEN
-		int foundName = FALSE;
-		int index = 0;
-		do
-		{
-			err = currObjType->enumEntries(currObj, index, compareBuffer);
-			if (err == ERR_NO_MORE_ENTRIES)
-			{
-				err = ERR_FILE_NOT_FOUND;
-				break;
-			}
-			else if (err)
-				break;
-
-			if (strnlen(compareBuffer, MAXNAME) == segLength)
-			{
-#ifdef CASE_INSENSITIVE
-				StrToLower(compareBuffer);
-#endif
-
-				if (!memcmp(compareBuffer, currSeg, segLength))
-					foundName = TRUE;
-			}
-
-			index++;
-		} while (!foundName);
-
-		if (!foundName)
-		{
-			err = ERR_FILE_NOT_FOUND;
-			break;
-		}
-
-#ifdef CASE_INSENSITIVE
-		strncpy(compareBuffer, currSeg, segLength);
-		compareBuffer[segLength] = 0;
-#endif
-
-#else
 		// Copy the segment into a buffer as a string
 		strncpy(compareBuffer, currSeg, segLength);
 		compareBuffer[segLength] = 0;
-#endif
 
 		// Open the sub-object
 		ObjectHeader* nextObj = NULL;
