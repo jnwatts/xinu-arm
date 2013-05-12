@@ -19,8 +19,6 @@
  */
 shellcmd xsh_dir(int nargs, char *args[])
 {
-    printf("\n");
-    
     /* Output help, if '--help' argument was supplied */
     if (nargs == 2 && strncmp(args[1], "--help", 7) == 0)
     {
@@ -52,11 +50,12 @@ shellcmd xsh_dir(int nargs, char *args[])
     }
     else
     {
-        char nameBuffer[MAXNAME] = {0};
+        char nameBuffer[MAXNAME + 1];
         int i = 0;
         while (!EnumFiles(handle, i++, nameBuffer))
         {
             printf("%s\n", nameBuffer);
+            memset(nameBuffer, 0, MAXNAME + 1);
         }
         CloseFile(handle);
     }

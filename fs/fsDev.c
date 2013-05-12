@@ -1,3 +1,9 @@
+// fsDev.c
+// By Zachary Northrup
+//
+// Contains methods implementing the built-in /dev filesystem, which provides access to 
+// Xinu devices through the filesystem interface.
+
 #include <filesystem.h>
 #include <list.h>
 #include <hashtable.h>
@@ -58,6 +64,20 @@ int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 	if (!data->isRoot || index >= NDEVS)
 		return ERR_NO_MORE_ENTRIES;
 
+	char* namePtr = devtab[index].name;
+	int i = 0;
+	while (*namePtr && i <= MAXNAME)
+	{
+		if (i == MAXNAME || *namePtr < ' ' || namePtr > '~')
+		{
+			kprintf("Device %d is invalid!\r\n", index);
+			strncpy(buffer, "invalid", MAXNAME);
+			return SUCCESS;
+		}
+		namePtr++;
+		i++;
+	}
+
 	strncpy(buffer, devtab[index].name, MAXNAME);
 
 	return SUCCESS;
@@ -65,12 +85,12 @@ int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 
 int fsDev_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
 {
-	return SUCCESS;
+	return ERR_ACCESS_DENIED;
 }
 
 int fsDev_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
 {
-	return SUCCESS;
+	return ERR_ACCESS_DENIED;
 }
 
 int fsDev_deleteObj(ObjectHeader* obj)
@@ -99,7 +119,9 @@ void fsDev_init(void)
 		.openObj = fsDev_openObj,
 		.enumEntries = fsDev_enumEntries,
 		.deleteObj = fsDev_deleteObj,
-		.close = fsDev_close
+		.close = fsDev_close,
+		.readObj = fsDev_readObj,
+		.writeObj = feDev_writeObj
 	};
 	AddObjectType(&type);
 }

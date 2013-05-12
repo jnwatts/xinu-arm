@@ -14,6 +14,7 @@ ObjectType ObjectTypes[NFSTYPES];
 HashTable OpenHandles;
 fshandle NextHandle = 1;
 
+// Allocates memory using malloc and zeros it before returning
 void* zmalloc(size_t size)
 {
 	void* ret = malloc(size);
@@ -23,6 +24,7 @@ void* zmalloc(size_t size)
 	return ret;
 }
 
+// Creates a handle in the handle table for a given object
 fshandle CreateHandle(ObjectHeader* header)
 {
 	fshandle handle = NextHandle++;
@@ -30,6 +32,7 @@ fshandle CreateHandle(ObjectHeader* header)
 	return handle;
 }
 
+// Closes a file handle
 errcode CloseFile(fshandle handle)
 {
 	//kprintf("CloseFile(%d)\n", handle);
@@ -44,6 +47,7 @@ errcode CloseFile(fshandle handle)
 	return CloseObject(header);
 }
 
+// Closes an object by notifying its object type manager
 errcode CloseObject(ObjectHeader* header)
 {
 	//kprintf("CloseObject(%d)\n", header);
@@ -62,6 +66,7 @@ errcode CloseObject(ObjectHeader* header)
 	return err;
 }
 
+// Creates a file handle for a file at the specified path
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
 	//kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
@@ -76,6 +81,7 @@ errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS acc
 	return result;
 }
 
+// Deletes the file at the specified path
 errcode DeleteFile(char* path)
 {
 	ObjectHeader* header = NULL;
@@ -88,6 +94,7 @@ errcode DeleteFile(char* path)
 	return CloseObject(header);
 }
 
+// Closes a file handle and deletes the underlying file before returning
 errcode CloseAndDeleteFile(fshandle handle)
 {
 	ObjectHeader* header = NULL;
@@ -181,6 +188,7 @@ errcode MountFileSystem(char* mountPoint, int typeId, void* mountArg)
 		free(pathCopy);
 		return err ? err : ERR_UNKNOWN;
 	}
+	strncpy(newRoot->objName, lastSlash, MAXNAME);
 
 	//kprintf("Mounting into enclosing FS\r\n");
 
@@ -506,7 +514,9 @@ void fsInit(void)
 		.enumEntries = fsNative_enumEntries,
 		.deleteObj = fsNative_deleteObj,
 		.close = fsNative_close,
-		.mountObj = fsNative_mountObj
+		.mountObj = fsNative_mountObj,
+		.readObj = fsNative_readObj,
+		.writeObj = fsNative_writeObj
 	};
 	AddObjectType(&type);
 

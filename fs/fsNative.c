@@ -1,6 +1,17 @@
+// fsNative.c
+// By Zachary Northrup
+// 
+// Contains methods implementing the native root filesystem, which provides a basic 
+// directory-only in-memory filesystem in which other filesystems can be mounted.
+
 #include <filesystem.h>
 #include <list.h>
 #include <hashtable.h>
+
+typedef struct
+{
+	List children;
+} fsNative_Dir;
 
 ObjectHeader* fsNative_CreateHeader(char* path)
 {

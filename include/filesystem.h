@@ -105,11 +105,6 @@ typedef struct
 	int (*mountObj)(ObjectHeader* obj, ObjectHeader* mountedObj);
 } ObjectType;
 
-typedef struct
-{
-	List children;
-} fsNative_Dir;
-
 // Opens or creates a file in the filesystem
 // - openedHandle - a pointer to a location in which to place the handle to the opened file
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access);
