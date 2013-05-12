@@ -12,7 +12,10 @@
 ObjectHeader* RootDir;
 ObjectType ObjectTypes[NFSTYPES];
 HashTable OpenHandles;
-fshandle NextHandle = 1;
+HashTable OpenHandlePositions;
+
+// Skip over NDEVS in order to ensure that device handles are passed directly to the devices in write/read
+fshandle NextHandle = NDEVS + 1;
 
 // Allocates memory using malloc and zeros it before returning
 void* zmalloc(size_t size)
@@ -29,6 +32,7 @@ fshandle CreateHandle(ObjectHeader* header)
 {
 	fshandle handle = NextHandle++;
 	HashPut(&OpenHandles, handle, (void*)header);
+	HashPut(&OpenHandlePositions, handle, 0);
 	return handle;
 }
 
@@ -113,7 +117,18 @@ errcode ReadFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-	return SUCCESS;
+
+	void* filePos = 0;
+	HashGet(&OpenHandlePositions, handle, &filePos);
+
+	errcode err = ObjectTypes[header->objType].readObj(header, (fileptr)filePos, buffer, len);
+	if (err > 0)
+	{
+		filePos = (fileptr)filePos + err;
+		HashPut(&OpenHandlePositions, handle, &filePos);
+	}
+
+	return err;
 }
 
 errcode WriteFile(fshandle handle, char* buffer, int len)
@@ -122,7 +137,18 @@ errcode WriteFile(fshandle handle, char* buffer, int len)
 	errcode err = HashGet(&OpenHandles, handle, &header);
 	if (err < 0 || !header)
 		return err;
-	return SUCCESS;
+
+	void* filePos = 0;
+	HashGet(&OpenHandlePositions, handle, &filePos);
+
+	errcode err = ObjectTypes[header->objType].writeObj(header, (fileptr)filePos, buffer, len);
+	if (err > 0)
+	{
+		filePos = (fileptr)filePos + err;
+		HashPut(&OpenHandlePositions, handle, &filePos);
+	}
+
+	return err;
 }
 
 errcode EnumFiles(fshandle handle, int index, char* buffer)
@@ -134,6 +160,20 @@ errcode EnumFiles(fshandle handle, int index, char* buffer)
 
 	err = ObjectTypes[header->objType].enumEntries(header, index, buffer);
 	return err;
+}
+
+errcode SeekFile(fshandle handle, fileptr position)
+{
+	HashPut(&OpenHandlePositions, handle, position);
+	return SUCCESS;
+}
+
+errcode TellFile(fshandle handle, fileptr* position)
+{
+	void* pos = 0;
+	HashGet(&OpenHandlePositions, handle, &pos);
+	*position = (fileptr)pos;
+	return SUCCESS;
 }
 
 static void PreprocessPath(char*);
@@ -504,6 +544,7 @@ void fsInit(void)
 {
 	memset(ObjectTypes, 0, ARRAYSIZE(ObjectTypes));
 	HashInit(&OpenHandles);
+	HashInit(&OpenHandlePositions);
 
 	// Register the native VFS object type
 	ObjectType type = 

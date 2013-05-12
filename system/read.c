@@ -20,6 +20,12 @@ devcall read(int descrp, void *buffer, uint count)
 {
     device *devptr;
 
+    if (descrp >= NDEVS)
+    {
+    	errcode err = ReadFile(descrp, buffer, count);
+    	return err ? SYSERR : OK;
+    }
+
     if (isbaddev(descrp))
     {
         return SYSERR;

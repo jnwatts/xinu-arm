@@ -11,6 +11,7 @@
 #include <queue.h>
 #include <memory.h>
 #include <safemem.h>
+#include <filesystem.h>
 
 extern void xdone(void);
 
@@ -41,6 +42,12 @@ syscall kill(tid_typ tid)
     /* reclaim used memory regions */
     memRegionReclaim(tid);
 #endif                          /* UHEAP_SIZE */
+
+    // Close open file handles
+    if (thrent->fdesc[0] >= NDEVS)
+        CloseFile(thrent->fdesc[0]);
+    if (thrent->fdesc[1] >= NDEVS)
+        CloseFile(thrent->fdesc[1]);
 
     send(thrptr->parent, tid);
 

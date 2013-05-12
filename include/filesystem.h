@@ -90,10 +90,10 @@ typedef struct
 
 	// Reads the object at the given position, or reads the next bytes if the object is not a block device.
 	//   Returns the number of bytes read or zero if there are no more bytes to read.
-	int (*readObj)(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
+	int (*readObj)(ObjectHeader* obj, fileptr position, char* buffer, int len);
 
 	// Writes the object at the given position, or writes the next bytes if the object is not a block device.
-	int (*writeObj)(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags);
+	int (*writeObj)(ObjectHeader* obj, fileptr position, char* buffer, int len);
 
 	// Notifies the type manager that all representations of the object should be deleted.
 	int (*deleteObj)(ObjectHeader* obj);
@@ -113,6 +113,8 @@ errcode CloseFile(fshandle handle);
 errcode DeleteFile(char* path);
 errcode ReadFile(fshandle handle, char* buffer, int len);
 errcode WriteFile(fshandle handle, char* buffer, int len);
+errcode SeekFile(fshandle handle, fileptr position);
+errcode TellFile(fshandle handle, fileptr* position);
 errcode EnumFiles(fshandle handle, int index, char* buffer);
 errcode ChangeWorkingDirectory(char* path);
 char* GetWorkingDirectory(void);

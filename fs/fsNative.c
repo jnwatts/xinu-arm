@@ -97,12 +97,12 @@ int fsNative_mountObj(ObjectHeader* obj, ObjectHeader* mountedObj)
 	return SUCCESS;
 }
 
-int fsNative_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
+int fsNative_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 {
 	return ERR_ACCESS_DENIED;
 }
 
-int fsNative_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
+int fsNative_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 {
 	return ERR_ACCESS_DENIED;
 }

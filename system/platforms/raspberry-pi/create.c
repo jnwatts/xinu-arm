@@ -84,12 +84,9 @@ tid_typ create(void *procaddr, uint ssize, int priority,
                                 0};             //ARM CPU interrupts enabled
 
     /* set up default file descriptors */
-    /** \todo When the CONSOLE stuff works on fluke-arm, we need to reenable stdio for threads. */
-#if 0
     thrptr->fdesc[0] = CONSOLE; /* stdin  is console */
     thrptr->fdesc[1] = CONSOLE; /* stdout is console */
     thrptr->fdesc[2] = CONSOLE; /* stderr is console */
-#endif /* 0 */
 
     /* Initialize stack with accounting block. */
     *saddr = STACKMAGIC;

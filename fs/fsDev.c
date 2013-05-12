@@ -9,6 +9,8 @@
 #include <hashtable.h>
 #include <device.h>
 
+//#define OPEN_REAL_DEVICES
+
 typedef struct
 {
 	int isRoot;
@@ -49,9 +51,11 @@ int fsDev_openObj(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE m
 	if (deviceIndex < 0)
 		return ERR_FILE_NOT_FOUND;
 
+#ifdef OPEN_REAL_DEVICES
 	syscall err = open(deviceIndex);
 	if (err != OK)
 		return err;
+#endif
 
 	*newObj = fsDev_CreateHeader(name, FALSE, deviceIndex);
 
@@ -84,14 +88,24 @@ int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 	return SUCCESS;
 }
 
-int fsDev_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
+int fsDev_readObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 {
-	return ERR_ACCESS_DENIED;
+	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(obj);
+
+	if (data->isRoot)
+		return ERR_ACCESS_DENIED;
+
+	return err = read(data->devIndex, buffer, len);
 }
 
-int fsDev_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, int flags)
+int fsDev_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len)
 {
-	return ERR_ACCESS_DENIED;
+	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(obj);
+
+	if (data->isRoot)
+		return ERR_ACCESS_DENIED;
+
+	return write(data->devIndex, buffer, len);
 }
 
 int fsDev_deleteObj(ObjectHeader* obj)

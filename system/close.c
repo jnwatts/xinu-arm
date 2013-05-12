@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 #include <device.h>
+ #include <filesystem.h>
 
 /**
  * close a device
@@ -17,6 +18,12 @@
 devcall close(int descrp)
 {
     device *devptr;
+
+    if (descrp >= NDEVS)
+    {
+    	CloseFile(descrp);
+    	return OK;
+    }
 
     if (isbaddev(descrp))
     {
