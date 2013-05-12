@@ -21,7 +21,7 @@ void *memmove(void *s, const void *ct, int n)
 
     if (s == ct || n <= 0)
     	return s;
-    else if (dst < src)
+    else if (s < ct)
     {
     	dst = (char *)s;
     	src = (char *)ct;
@@ -36,7 +36,7 @@ void *memmove(void *s, const void *ct, int n)
 		src = ((char*)ct) + (n - 1);
 		for (i = 0; i < n; i++)
     	{
-        	*dst++ = *src++;
+        	*dst-- = *src--;
     	}
 	}
     return s;
