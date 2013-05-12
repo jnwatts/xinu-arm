@@ -9,7 +9,7 @@ COMP = system
 C_FILES = initialize.c queue.c
 
 # Files for process control
-C_FILES += kill.c ready.c resched.c resume.c suspend.c chprio.c getprio.c queue.c getitem.c queinit.c insert.c gettid.c xdone.c yield.c userret.c
+C_FILES += kill.c ready.c resched.c resume.c suspend.c chprio.c getprio.c queue.c getitem.c queinit.c insert.c gettid.c xdone.c yield.c userret.c usleep.c
 
 # Files for preemption
 C_FILES += clkinit.c clkhandler.c insertd.c sleep.c unsleep.c wakeup.c

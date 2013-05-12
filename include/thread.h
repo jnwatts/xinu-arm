@@ -41,11 +41,11 @@
 #endif /* INITSTK */
 #define INITPRIO    20          /**< initial thread priority            */
 #define MINSTK      128         /**< minimum thread stack size          */
-#ifdef DEBUG
-#define INITRET   debugret      /**< threads return address for debug   */
-#else                           /* not DEBUG */
+/*#ifdef DEBUG*/
+/*#define INITRET   debugret */     /**< threads return address for debug   */
+/*#else       */                    /* not DEBUG */
 #define INITRET   userret     /**< threads return address             */
-#endif                          /* not DEBUG */
+/*#endif                           not DEBUG */
 
 /* Reschedule constants for ready  */
 #define RESCHED_YES 1           /**< tell ready to reschedule           */

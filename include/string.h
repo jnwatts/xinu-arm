@@ -15,11 +15,13 @@ char *strchr(const char *, int);
 char *strrchr(const char *, int);
 char *strstr(const char *, const char *);
 int strnlen(const char *, uint);
+int strlen(const char * s);
 
 int memcmp(const void *, const void *, int);
 void *memcpy(void *, const void *, int);
 void *memchr(const void *, int, int);
 void *memset(void *, int, int);
+void * memscan(void * addr, int c, int size);
 void *memmove(void *, const void *, int);
 
 #endif                          /* _STRING_H_ */

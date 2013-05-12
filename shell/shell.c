@@ -24,13 +24,16 @@ const struct centry commandtab[] = {
     {"printprocstks", FALSE, xsh_printprocstks},
     {"ledon", FALSE, xsh_ledon},
     {"ledoff", FALSE, xsh_ledoff},
+	{"usbStart", FALSE, xsh_usbStart},
+	{"kbdStart", FALSE, xsh_kbdStart},
+	{"usb", FALSE, xsh_usb},
 
     {"cd", TRUE, xsh_cd},
     {"pwd", TRUE, xsh_pwd},
     {"dir", FALSE, xsh_dir},
     {"ls", FALSE, xsh_dir},
     {"mkdir", FALSE, xsh_mkdir},
-
+	
 #if NETHER
     {"arp", FALSE, xsh_arp},
 #endif
@@ -624,6 +627,15 @@ int shellRead(int dev, char * buf, uint len){
 	if (buf[count-1] == '\r')
 		buf[count-1] = '\n';
 	
+	if ( count == 3 ){
+		if (buf[0] == '!'){
+			if (buf[1] == '!'){
+				memcpy(buf, history[((curHistIndex + curHistElements - 1) % curHistElements)].com, SHELL_BUFLEN);
+				count = history[((curHistIndex + curHistElements - 1) % curHistElements)].size;
+			}
+		}
+	}
+
 	if ( count > 1 ){
 		history[curHistIndex].size = count;
 		memcpy(history[curHistIndex].com, buf, SHELL_BUFLEN);
