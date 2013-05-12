@@ -199,12 +199,15 @@ thread shell(int indescrp, int outdescrp, int errdescrp)
 
         if (NULL != hostptr)
         {
-            printf("@%s$ ", hostptr);
+            printf("@%s:", hostptr);
         }
         else
         {
-            printf("$ ");
+            printf(":");
         }
+
+        // Display the working directory
+        printf("%s$ ", GetWorkingDirectory());
 
         /* Setup proper tty modes for input and output */
         //control(stdin, TTY_CTRL_CLR_IFLAG, TTY_IRAW, NULL);

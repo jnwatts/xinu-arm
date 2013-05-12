@@ -32,7 +32,7 @@ fshandle CreateHandle(ObjectHeader* header)
 
 errcode CloseFile(fshandle handle)
 {
-	kprintf("CloseFile(%d)\n", handle);
+	//kprintf("CloseFile(%d)\n", handle);
 
 	ObjectHeader* header = NULL;
 	errcode err = HashGet(&OpenHandles, handle, (void**)&header);
@@ -46,7 +46,7 @@ errcode CloseFile(fshandle handle)
 
 errcode CloseObject(ObjectHeader* header)
 {
-	kprintf("CloseObject(%d)\n", header);
+	//kprintf("CloseObject(%d)\n", header);
 
 	if (!header)
 		return SUCCESS;
@@ -64,7 +64,7 @@ errcode CloseObject(ObjectHeader* header)
 
 errcode CreateFile(char* path, fshandle* openedHandle, FSMODE mode, FSACCESS access)
 {
-	kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
+	//kprintf("CreateFile(%s, _, mode: %d, access: %d)\n", path, mode, access);
 
 	ObjectHeader* header = NULL;
 	errcode result = OpenObject(path, NULL, &header, mode, access);
@@ -129,11 +129,62 @@ errcode EnumFiles(fshandle handle, int index, char* buffer)
 	return err;
 }
 
+errcode MountFileSystem(char* mountPoint, int typeId, void* mountArg)
+{
+	if (typeId >= NFSTYPES)
+		return ERR_INVALID_FS_TYPE;
+
+	char* pathCopy = (char*)zmalloc(MAXPATH + 1);
+	strncpy(pathCopy, mountPoint, MAXPATH);
+	
+	// Tidy up the path, removing dots, trailing slashes, etc.
+	PreprocessPath(pathCopy);
+	
+	// Reject invalid paths
+	if (pathCopy[0] == 0)
+	{
+		free(pathCopy);
+		return ERR_FILE_NOT_FOUND;
+	}
+
+	// Separate the directory path from the mount point name
+	char* lastSlash = strrchr(pathCopy, PATH_SEPARATOR);
+	*lastSlash = 0;
+	lastSlash++;
+
+	// Open the folder that will contain the mount point
+	ObjectHeader* enclosingDir = NULL;
+	errcode err = OpenObject(pathCopy, NULL, &enclosingDir, (FSMODE)(FSMODE_OPEN | FSMODE_DIR), FSACCESS_INFO);
+	if (err || !enclosingDir)
+	{
+		free(pathCopy);
+		return err ? err : ERR_FILE_NOT_FOUND;
+	}
+
+	// Create the root of the new filesystem
+	ObjectHeader* newRoot = NULL;
+	err = ObjectTypes[typeId].initRoot(&newRoot, mountArg);
+	if (err || !newRoot)
+	{
+		CloseObject(enclosingDir);
+		free(pathCopy);
+		return err ? err : ERR_UNKNOWN;
+	}
+
+	// Assign the new object a place in the enclosing filesystem
+	err = ObjectTypes[enclosingDir->objType].mountObj(enclosingDir, newRoot);
+	if (err)
+	{
+		CloseObject(newRoot);
+	}
+
+	CloseObject(enclosingDir);
+	free(pathCopy);
+	return err;
+}
+
 void AddObjectType(ObjectType* type)
 {
-	/*ObjectType* newType = zmalloc(sizeof(ObjectType));
-	*newType = *type;
-	ListAdd(&ObjectTypes, newType);*/
 	ObjectTypes[type->typeId] = *type;
 }
 
@@ -168,7 +219,7 @@ static int StrIndexOf(char* str, char chr)
 	return result;
 }
 
-// Cleans up a path by eliminating dots, double dots, and double slashes
+// Cleans up a path by eliminating dots, double dots, trailing slashes, and double slashes
 static void PreprocessPath(char* path)
 {
 	// segStart always moves forward faster than dest
@@ -232,6 +283,13 @@ static void PreprocessPath(char* path)
 	if (dest == path)
 		dest++;
 	*dest = 0;
+
+	// Remove trailing slashes
+	if ((dest - path) > 1 && *(dest - 1) == PATH_SEPARATOR)
+	{
+		*(dest - 1) = 0;
+		dest--;
+	}
 }
 
 // Determines whether enumeration functions are called to validate sub-object naming
@@ -239,7 +297,7 @@ static void PreprocessPath(char* path)
 
 errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
-	kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
+	//kprintf("OpenObject(%s, _, _, mode: %d, access: %d)\n", path, mode, access);
 
 	char* pathCopy = zmalloc(MAXPATH + 1);
 	pathCopy[0] = 0;
@@ -253,7 +311,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		strncpy(pathCopy, GetWorkingDirectory(), MAXPATH);
 		strncat(pathCopy, "/", MAXPATH);
 		strncat(pathCopy, path, MAXPATH);
-		kprintf("Built initial path: %s\n", pathCopy);
+		//kprintf("Built initial path: %s\n", pathCopy);
 	}
 	else
 	{
@@ -271,15 +329,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		return ERR_FILE_NOT_FOUND;
 	}
 
-	// Remove trailing slashes
-	int pathLen = strnlen(pathCopy, MAXPATH);
-	if (pathLen > 1 && pathCopy[pathLen - 1] == PATH_SEPARATOR)
-	{
-		pathCopy[pathLen - 1] = 0;
-		pathLen--;
-	}
-
-	kprintf("Processed path: %s\n", pathCopy);
+	//kprintf("Processed path: %s\n", pathCopy);
 
 	if (actualPath)
 		strncpy(actualPath, pathCopy, MAXPATH);
@@ -307,12 +357,16 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 		segLength = StrIndexOf(currSeg, PATH_SEPARATOR);
 		if (segLength == 0)
 		{
-			kprintf("Done with path\n");
+			//kprintf("Done with path\n");
 			break;
+		}
+		else if (segLength > MAXNAME)
+		{
+			err = ERR_INVALID_NAME;
 		}
 		int hasMoreSegments = currSeg[segLength] == PATH_SEPARATOR;
 
-		kprintf("Segment: %.*s\n", segLength, currSeg);
+		//kprintf("Segment: %.*s\n", segLength, currSeg);
 		
 #ifdef ENUM_TO_OPEN
 		int foundName = FALSE;
@@ -378,7 +432,7 @@ errcode OpenObject(char* path, char* actualPath, ObjectHeader** newObj, FSMODE m
 
 	if (err)
 	{
-		kprintf("OpenObject returning error %d\n", err);
+		//kprintf("OpenObject returning error %d\n", err);
 		if (currObj)
 			CloseObject(currObj);
 	}
@@ -443,4 +497,9 @@ void fsInit(void)
 
 	// Create the root directory
 	RootDir = fsNative_CreateHeader("");
+
+	fsDev_init();
+
+	// Mount the list of devices at /dev
+	MountFileSystem("/dev", FSTYPE_DEV, NULL);
 }

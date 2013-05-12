@@ -26,6 +26,9 @@ typedef enum
 #define ERR_NO_MORE_ENTRIES	-103
 #define ERR_FILE_ALREADY_EXISTS	-104
 #define ERR_DIR_NOT_EMPTY	-105
+#define ERR_INVALID_FS_TYPE	-106
+#define ERR_INVALID_NAME	-107
+#define ERR_UNKNOWN			-108
 
 typedef int fshandle;
 
@@ -71,6 +74,8 @@ typedef struct
 {
 	int typeId;
 
+	int (*initRoot)(ObjectHeader** root, void* mountArg);
+
 	// Gets information about the given object.
 	int (*getInfo)(ObjectHeader* obj, ObjectInfo* info);
 
@@ -95,6 +100,9 @@ typedef struct
 
 	// Notifies the type manager that the object has been closed.
 	int (*close)(ObjectHeader* obj);
+
+	// Requests that the filesystem create a mount point for a given object
+	int (*mountObj)(ObjectHeader* obj, ObjectHeader* mountedObj);
 } ObjectType;
 
 typedef struct

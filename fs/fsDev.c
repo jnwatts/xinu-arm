@@ -12,7 +12,7 @@ typedef struct
 ObjectHeader* fsDev_CreateHeader(char* path, int isRoot, int devIndex)
 {
 	ObjectHeader* header = AllocateObjectHeader(sizeof(fsDev_Data));
-	fsDev_Data* data = GetObjectCustomData(header);
+	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(header);
 
 	strncpy(header->objName, path, MAXNAME);
 	data->isRoot = isRoot;
@@ -29,15 +29,37 @@ int fsDev_getInfo(ObjectHeader* obj, ObjectInfo* info)
 
 int fsDev_openObj(ObjectHeader* obj, char* name, ObjectHeader** newObj, FSMODE mode, FSACCESS access)
 {
+	*newObj = NULL;
+
 	if ((mode & FSMODE_BASIC_MASK) == FSMODE_CREATENEW)
 		return ERR_ACCESS_DENIED;
 
 	fsDev_Data* data = GetObjectCustomData(obj);
+	if (!data->isRoot)
+		return ERR_FILE_NOT_FOUND;
+
+	syscall deviceIndex = getdev(name);
+	if (deviceIndex < 0)
+		return ERR_FILE_NOT_FOUND;
+
+	syscall err = open(deviceIndex);
+	if (err != OK)
+		return err;
+
+	*newObj = fsDev_CreateHeader(name, FALSE, deviceIndex);
+
 	return SUCCESS;
 }
 
 int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 {
+	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(header);
+
+	if (!data->isRoot || index >= NDEVS)
+		return ERR_NO_MORE_ENTRIES;
+
+	strcpy(buffer, devtab[index].name);
+
 	return SUCCESS;
 }
 
@@ -53,10 +75,31 @@ int fsDev_writeObj(ObjectHeader* obj, fileptr position, char* buffer, int len, i
 
 int fsDev_deleteObj(ObjectHeader* obj)
 {
-	return SUCCESS;
+	return ERR_ACCESS_DENIED;
 }
 
 int fsDev_close(ObjectHeader* obj)
 {
 	return SUCCESS;
+}
+
+int fsDev_initRoot(ObjectHeader** newRoot, void* mountArg)
+{
+	*newRoot = fsDev_CreateHeader("dev", TRUE, -1);
+	return SUCCESS;
+}
+
+void fsDev_init()
+{
+	ObjectType type =
+	{
+		.typeId = FSTYPE_DEV,
+		.initRoot = fsDev_initRoot,
+		.getInfo = fsDev_getInfo,
+		.openObj = fsDev_openObj,
+		.enumEntries = fsDev_enumEntries,
+		.deleteObj = fsDev_deleteObj,
+		.close = fsDev_close
+	};
+	AddObjectType(&type);
 }
