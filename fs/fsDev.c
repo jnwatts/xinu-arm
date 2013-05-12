@@ -20,6 +20,7 @@ ObjectHeader* fsDev_CreateHeader(char* path, int isRoot, int devIndex)
 	ObjectHeader* header = AllocateObjectHeader(sizeof(fsDev_Data));
 	fsDev_Data* data = (fsDev_Data*)GetObjectCustomData(header);
 
+	header->objType = FSTYPE_DEV;
 	strncpy(header->objName, path, MAXNAME);
 	data->isRoot = isRoot;
 	data->devIndex = devIndex;
@@ -68,7 +69,7 @@ int fsDev_enumEntries(ObjectHeader* obj, int index, char* buffer)
 	int i = 0;
 	while (*namePtr && i <= MAXNAME)
 	{
-		if (i == MAXNAME || *namePtr < ' ' || namePtr > '~')
+		if (i == MAXNAME || *namePtr < ' ' || *namePtr > '~')
 		{
 			kprintf("Device %d is invalid!\r\n", index);
 			strncpy(buffer, "invalid", MAXNAME);
@@ -121,7 +122,7 @@ void fsDev_init(void)
 		.deleteObj = fsDev_deleteObj,
 		.close = fsDev_close,
 		.readObj = fsDev_readObj,
-		.writeObj = feDev_writeObj
+		.writeObj = fsDev_writeObj
 	};
 	AddObjectType(&type);
 }

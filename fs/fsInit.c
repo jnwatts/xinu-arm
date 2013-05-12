@@ -290,7 +290,7 @@ static void PreprocessPath(char* path)
 				return;
 			}
 
-			dest = lastSlash + 1;
+			dest = lastSlash;
 			segStart += 2;
 		}
 		// Handle normal path segments
