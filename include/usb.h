@@ -31,6 +31,7 @@
 #include <usb_defs.h>
 #include <usbdescriptors.h>
 #include <device.h>
+#include <part.h>
 #include <common2.h>
 /*
  * The EHCI spec says that we must align to at least 32 bytes.  However,
@@ -56,13 +57,13 @@
 
 #define USB_CNTL_TIMEOUT 100 /* 100ms timeout */
 
-#define debug_cond(cond, fmt, args...)		\
+//#define debug_cond(cond, fmt, args...)		\
 	do {					\
 		if (cond)			\
 			kprintf(fmt, ##args);	\
 	} while (0)
 
-#define debug(fmt, args...)			\
+//#define debug(fmt, args...)			\
 	debug_cond(_DEBUG, fmt, ##args)
 
 
@@ -248,6 +249,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 /* Defines */
 #define USB_UHCI_VEND_ID	0x8086
 #define USB_UHCI_DEV_ID		0x7112
+#define CONFIG_USB_STORAGE
 
 /*
  * PXA25x can only act as USB device. There are drivers
@@ -264,14 +266,15 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 //#error USB Lowlevel not defined
 //#endif
 
-#ifdef CONFIG_USB_STORAGE
+//#ifdef CONFIG_USB_STORAGE
 
 #define USB_MAX_STOR_DEV 5
 block_dev_desc_t *usb_stor_get_dev(int index);
 int usb_stor_scan(int mode);
 int usb_stor_info(void);
+block_dev_desc_t *usb_stor_get_dev(int index);
 
-#endif
+//#endif
 
 #ifdef CONFIG_USB_HOST_ETHER
 
