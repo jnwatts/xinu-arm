@@ -126,7 +126,6 @@ static inline block_dev_desc_t *get_dev(const char *ifname, int dev)
 static inline block_dev_desc_t* ide_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* sata_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* scsi_get_dev(int dev) { return NULL; }
-static inline block_dev_desc_t* usb_stor_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* mmc_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* systemace_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* mg_disk_get_dev(int dev) { return NULL; }
@@ -135,7 +134,26 @@ static inline int get_partition_info (block_dev_desc_t * dev_desc, int part,
 	disk_partition_t *info) { return -1; }
 static inline void print_part (block_dev_desc_t *dev_desc) {}
 static inline void  init_part (block_dev_desc_t *dev_desc) {}
-static inline void dev_print(block_dev_desc_t *dev_desc) {}
+static inline void dev_print(block_dev_desc_t *dev_desc) {
+
+			kprintf("\t- USB Address: %d \r\n\
+\t- LUN: %d\r\n\
+\t- Type: %d\r\n\
+\t- Removable: %d\r\n\
+\t- Num Blocks: %d\r\n\
+\t- Block Size: %d\r\n\
+\t- Capacity (mB) %d\r\n\
+\t- Vendor: 0x%04x\r\n\
+\t- Product: 0x%04x\r\n\
+\t- Version: 0x%04x\r\n",
+					dev_desc->target, dev_desc->lun, \
+					dev_desc->type, dev_desc->removable, dev_desc->lba, \
+					dev_desc->blksz, (dev_desc->lba * dev_desc->blksz)/1024/1024, \
+					dev_desc->vendor, dev_desc->product, dev_desc->revision);
+
+
+
+}
 static inline int get_device(const char *ifname, const char *dev_str,
 	       block_dev_desc_t **dev_desc)
 { return -1; }

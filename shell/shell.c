@@ -20,8 +20,6 @@
 #include <filesystem.h>
 
 const struct centry commandtab[] = {
-	{"usbStart", FALSE, xsh_usbStart},
-	{"kbdStart", FALSE, xsh_kbdStart},
 	{"usb", FALSE, xsh_usb},
 	
 
@@ -40,76 +38,76 @@ const struct centry commandtab[] = {
 	{"mkdir", FALSE, xsh_mkdir},
 	
 #if NETHER
-	{"arp", FALSE, xsh_arp},
+    {"arp", FALSE, xsh_arp},
 #endif
-	{"clear", TRUE, xsh_clear},
-	{"date", FALSE, xsh_date},
+    {"clear", TRUE, xsh_clear},
+    {"date", FALSE, xsh_date},
 #if USE_TLB
-	{"dumptlb", FALSE, xsh_dumptlb},
+    {"dumptlb", FALSE, xsh_dumptlb},
 #endif
 #if NETHER
-	{"ethstat", FALSE, xsh_ethstat},
+    {"ethstat", FALSE, xsh_ethstat},
 #endif
-	{"exit", TRUE, xsh_exit},
+    {"exit", TRUE, xsh_exit},
 #if NFLASH
-	{"flashstat", FALSE, xsh_flashstat},
+    {"flashstat", FALSE, xsh_flashstat},
 #endif
 #ifdef GPIO_BASE
-	{"gpiostat", FALSE, xsh_gpiostat},
+    {"gpiostat", FALSE, xsh_gpiostat},
 #endif
-	{"help", FALSE, xsh_help},
-	{"kill", TRUE, xsh_kill},
+    {"help", FALSE, xsh_help},
+    {"kill", TRUE, xsh_kill},
 #ifdef GPIO_BASE
-	{"led", FALSE, xsh_led},
+    {"led", FALSE, xsh_led},
 #endif
-	{"memstat", FALSE, xsh_memstat},
-	{"memdump", FALSE, xsh_memdump},
+    {"memstat", FALSE, xsh_memstat},
+    {"memdump", FALSE, xsh_memdump},
 #if NETHER
-	{"nc", FALSE, xsh_nc},
-	{"netdown", FALSE, xsh_netdown},
+    {"nc", FALSE, xsh_nc},
+    {"netdown", FALSE, xsh_netdown},
 #if NETEMU
-	{"netemu", FALSE, xsh_netemu},
+    {"netemu", FALSE, xsh_netemu},
 #endif
-	{"netstat", FALSE, xsh_netstat},
-	{"netup", FALSE, xsh_netup},
+    {"netstat", FALSE, xsh_netstat},
+    {"netup", FALSE, xsh_netup},
 #endif
 #if NVRAM
-	{"nvram", FALSE, xsh_nvram},
+    {"nvram", FALSE, xsh_nvram},
 #endif
-	{"ps", FALSE, xsh_ps},
+    {"ps", FALSE, xsh_ps},
 #if NETHER
-	{"ping", FALSE, xsh_ping},
-	{"rdate", FALSE, xsh_rdate},
+    {"ping", FALSE, xsh_ping},
+    {"rdate", FALSE, xsh_rdate},
 #endif
-	{"reset", FALSE, xsh_reset},
+    {"reset", FALSE, xsh_reset},
 #if NETHER
-	{"route", FALSE, xsh_route},
+    {"route", FALSE, xsh_route},
 #endif
-	{"sleep", TRUE, xsh_sleep},
+    {"sleep", TRUE, xsh_sleep},
 #if NETHER
-	{"snoop", FALSE, xsh_snoop},
+    {"snoop", FALSE, xsh_snoop},
 #endif
 #if USE_TAR
-	{"tar", FALSE, xsh_tar},
+    {"tar", FALSE, xsh_tar},
 #endif
 #if NETHER
-	{"tcpstat", FALSE, xsh_tcpstat},
-	{"telnet", FALSE, xsh_telnet},
-	{"telnetserver", FALSE, xsh_telnetserver},
+    {"tcpstat", FALSE, xsh_tcpstat},
+    {"telnet", FALSE, xsh_telnet},
+    {"telnetserver", FALSE, xsh_telnetserver},
 #endif
-	{"test", FALSE, xsh_test},
-	{"testsuite", TRUE, xsh_testsuite},
-	{"uartstat", FALSE, xsh_uartstat},
+    {"test", FALSE, xsh_test},
+    {"testsuite", TRUE, xsh_testsuite},
+    {"uartstat", FALSE, xsh_uartstat},
 #if USE_TLB
-	{"user", FALSE, xsh_user},
+    {"user", FALSE, xsh_user},
 #endif
 #if NETHER
-	{"udpstat", FALSE, xsh_udpstat},
-	{"vlanstat", FALSE, xsh_vlanstat},
-	{"voip", FALSE, xsh_voip},
-	{"xweb", FALSE, xsh_xweb},
+    {"udpstat", FALSE, xsh_udpstat},
+    {"vlanstat", FALSE, xsh_vlanstat},
+    {"voip", FALSE, xsh_voip},
+    {"xweb", FALSE, xsh_xweb},
 #endif
-	{"?", FALSE, xsh_help}
+    {"?", FALSE, xsh_help}
 };
 
 typedef struct {
@@ -135,295 +133,274 @@ historyTab history[MAX_HISTORY];
  */
 thread shell(int indescrp, int outdescrp, int errdescrp)
 {
-	char buf[SHELL_BUFLEN];     /* line input buffer        */
-	short buflen;               /* length of line input     */
-	char tokbuf[SHELL_BUFLEN + SHELL_MAXTOK];   /* token value buffer       */
-	short ntok;                 /* number of tokens         */
-	char *tok[SHELL_MAXTOK];    /* pointers to token values */
-	char *outname;              /* name of output file      */
-	char *inname;               /* name of input file       */
-	bool background;            /* is background proccess?  */
-	syscall child;              /* pid of child thread      */
-	ushort i, j;                /* temp variables           */
-	irqmask im;                 /* interrupt mask state     */
+    char buf[SHELL_BUFLEN];     /* line input buffer        */
+    short buflen;               /* length of line input     */
+    char tokbuf[SHELL_BUFLEN + SHELL_MAXTOK];   /* token value buffer       */
+    short ntok;                 /* number of tokens         */
+    char *tok[SHELL_MAXTOK];    /* pointers to token values */
+    char *outname;              /* name of output file      */
+    char *inname;               /* name of input file       */
+    bool background;            /* is background proccess?  */
+    syscall child;              /* pid of child thread      */
+    ushort i, j;                /* temp variables           */
+    irqmask im;                 /* interrupt mask state     */
 
-	//historyTab hist[MAX_HISTORY];
+    //historyTab hist[MAX_HISTORY];
 
-	/* hostname variables */
-	char hostnm[NET_HOSTNM_MAXLEN + 1]; /* hostname of backend      */
-	char *hostptr;              /* pointer to hostname      */
-	int hostname_strsz;         /* nvram hostname name size */
-	device *devptr;             /* device pointer           */
+    /* hostname variables */
+    char hostnm[NET_HOSTNM_MAXLEN + 1]; /* hostname of backend      */
+    char *hostptr;              /* pointer to hostname      */
+    int hostname_strsz;         /* nvram hostname name size */
+    device *devptr;             /* device pointer           */
 
-	printf( "Welcome to the shell!\r\n" );
+    printf( "Welcome to the shell!\r\n" );
 
-	/* Enable interrupts */
-	enable();
+    /* Enable interrupts */
+    enable();
 
-	hostptr = NULL;
-	devptr = NULL;
-	hostname_strsz = 0;
-	bzero(hostnm, NET_HOSTNM_MAXLEN + 1);
+    hostptr = NULL;
+    devptr = NULL;
+    hostname_strsz = 0;
+    bzero(hostnm, NET_HOSTNM_MAXLEN + 1);
 
-	/* Setup buffer for string for nvramGet call for hostname */
+    /* Setup buffer for string for nvramGet call for hostname */
 #ifdef ETH0
-	if (!isbaddev(ETH0))
-	{
-		/* Determine the hostname of the main network device */
-		devptr = (device *)&devtab[ETH0];
-		hostname_strsz = strnlen(NET_HOSTNAME, NVRAM_STRMAX) + 1;
-		hostname_strsz += DEVMAXNAME;
-		char nvramget_hostname_str[hostname_strsz];
-		sprintf(nvramget_hostname_str, "%s_%s", devptr->name,
-				NET_HOSTNAME);
+    if (!isbaddev(ETH0))
+    {
+        /* Determine the hostname of the main network device */
+        devptr = (device *)&devtab[ETH0];
+        hostname_strsz = strnlen(NET_HOSTNAME, NVRAM_STRMAX) + 1;
+        hostname_strsz += DEVMAXNAME;
+        char nvramget_hostname_str[hostname_strsz];
+        sprintf(nvramget_hostname_str, "%s_%s", devptr->name,
+                NET_HOSTNAME);
 
-		/* Acquire the backend's hostname */
+        /* Acquire the backend's hostname */
 #if NVRAM
-		hostptr = nvramGet(nvramget_hostname_str);
+        hostptr = nvramGet(nvramget_hostname_str);
 #endif                          /* NVRAM */
-		if (hostptr != NULL)
-		{
-			memcpy(hostnm, hostptr, NET_HOSTNM_MAXLEN);
-			hostptr = hostnm;
-		}
-	}
+        if (hostptr != NULL)
+        {
+            memcpy(hostnm, hostptr, NET_HOSTNM_MAXLEN);
+            hostptr = hostnm;
+        }
+    }
 #endif
 
-	/* Set command devices for input, output, and error */
-	stdin = indescrp;
-	stdout = outdescrp;
-	stderr = errdescrp;
+    /* Set command devices for input, output, and error */
+    stdin = indescrp;
+    stdout = outdescrp;
+    stderr = errdescrp;
 
-	/* Print shell banner */
-	printf(SHELL_BANNER);
-	/* Print shell welcome message */
-	printf(SHELL_START);
+    /* Print shell banner */
+    printf(SHELL_BANNER);
+    /* Print shell welcome message */
+    printf(SHELL_START);
 
-	/* Continually receive and handle commands */
-	while (TRUE)
-	{
-		/* Display prompt */
-		printf(SHELL_PROMPT);
+    /* Continually receive and handle commands */
+    while (TRUE)
+    {
+        /* Display prompt */
+        printf(SHELL_PROMPT);
 
-		if (NULL != hostptr)
-		{
-			printf("@%s:", hostptr);
-		}
-		else
-		{
-			printf(":");
-		}
+        if (NULL != hostptr)
+        {
+            printf("@%s$ ", hostptr);
+        }
+        else
+        {
+            printf("$ ");
+        }
 
-		// Display the working directory
-		printf("%s$ ", GetWorkingDirectory());
+        /* Setup proper tty modes for input and output */
+        //control(stdin, TTY_CTRL_CLR_IFLAG, TTY_IRAW, NULL);
+	control(stdin, TTY_CTRL_SET_IFLAG, TTY_IRAW, NULL);
+        //control(stdin, TTY_CTRL_SET_IFLAG, TTY_ECHO, NULL);
+	control(stdin, TTY_CTRL_CLR_IFLAG, TTY_ECHO, NULL);
 
-		/* Setup proper tty modes for input and output */
-		//control(stdin, TTY_CTRL_CLR_IFLAG, TTY_IRAW, NULL);
-		control(stdin, TTY_CTRL_SET_IFLAG, TTY_IRAW, NULL);
-		//control(stdin, TTY_CTRL_SET_IFLAG, TTY_ECHO, NULL);
-		control(stdin, TTY_CTRL_CLR_IFLAG, TTY_ECHO, NULL);
+        /* Read command */
+        buflen = shellRead(stdin, buf, SHELL_BUFLEN - 1);
 
-		/* Read command */
-		buflen = shellRead(stdin, buf, SHELL_BUFLEN - 1);
+	printf("\n");
 
-		printf("\n");
+        /* Check for EOF and exit gracefully if seen */
+        if (EOF == buflen)
+        {
+            break;
+    	}
 
-		/* Check for EOF and exit gracefully if seen */
-		if (EOF == buflen)
-		{
-			break;
-		}
+        /* Parse line input into tokens */
+        if (SYSERR == (ntok = lexan(buf, buflen, &tokbuf[0], &tok[0])))
+        {
+            fprintf(stderr, SHELL_SYNTAXERR);
+            continue;
+        }
 
-		/* Parse line input into tokens */
-		if (SYSERR == (ntok = lexan(buf, buflen, &tokbuf[0], &tok[0])))
-		{
-			fprintf(stderr, SHELL_SYNTAXERR);
-			continue;
-		}
+        /* Ensure parse generated tokens */
+        if (0 == ntok)
+        {
+            continue;
+        }
 
-		/* Ensure parse generated tokens */
-		if (0 == ntok)
-		{
-			continue;
-		}
+        /* Initialize command options */
+        inname = NULL;
+        outname = NULL;
+        background = FALSE;
 
-		/* Initialize command options */
-		inname = NULL;
-		outname = NULL;
-		background = FALSE;
+        /* Mark as background thread, if last token is '&' */
+        if ('&' == *tok[ntok - 1])
+        {
+            ntok--;
+            background = TRUE;
+        }
 
-		/* Mark as background thread, if last token is '&' */
-		if ('&' == *tok[ntok - 1])
-		{
-			ntok--;
-			background = TRUE;
-		}
+        /* Check each token and perform special handling of '>' and '<' */
+        for (i = 0; i < ntok; i++)
+        {
+            /* Background '&' should have already been handled; Syntax error */
+            if ('&' == *tok[i])
+            {
+                ntok = -1;
+                break;
+            }
 
-		/* Check each token and perform special handling of '>' and '<' */
-		for (i = 0; i < ntok; i++)
-		{
-			/* Background '&' should have already been handled; Syntax error */
-			if ('&' == *tok[i])
-			{
-				ntok = -1;
-				break;
-			}
+            /* Setup for output redirection if token is '>'  */
+            if ('>' == *tok[i])
+            {
+                /* Syntax error */
+                if (outname != NULL || i >= ntok - 1)
+                {
+                    ntok = -1;
+                    break;
+                }
 
-			/* Setup for output redirection if token is '>'  */
-			if ('>' == *tok[i])
-			{
-				/* Syntax error */
-				if (outname != NULL || i >= ntok - 1)
-				{
-					ntok = -1;
-					break;
-				}
+                outname = tok[i + 1];
+                ntok -= 2;
 
-				outname = tok[i + 1];
-				ntok -= 2;
+                /* shift tokens (not to be passed to command */
+                for (j = i; j < ntok; j++)
+                {
+                    tok[j] = tok[j + 2];
+                }
+                continue;
+            }
 
-				/* shift tokens (not to be passed to command */
-				for (j = i; j < ntok; j++)
-				{
-					tok[j] = tok[j + 2];
-				}
-				continue;
-			}
+            /* Setup for input redirection if token is '<' */
+            if ('<' == *tok[i])
+            {
+                /* Syntax error */
+                if (inname != NULL || i >= ntok - 1)
+                {
+                    ntok = -1;
+                    break;
+                }
+                inname = tok[i + 1];
+                ntok -= 2;
 
-			/* Setup for input redirection if token is '<' */
-			if ('<' == *tok[i])
-			{
-				/* Syntax error */
-				if (inname != NULL || i >= ntok - 1)
-				{
-					ntok = -1;
-					break;
-				}
-				inname = tok[i + 1];
-				ntok -= 2;
+                /* shift tokens (not to be passed to command */
+                for (j = i; j < ntok; j++)
+                {
+                    tok[j] = tok[j + 2];
+                }
 
-				/* shift tokens (not to be passed to command */
-				for (j = i; j < ntok; j++)
-				{
-					tok[j] = tok[j + 2];
-				}
+                continue;
+            }
+        }
 
-				continue;
-			}
-		}
+        /* Handle syntax error */
+        if (ntok <= 0)
+        {
+            fprintf(stderr, SHELL_SYNTAXERR);
+            continue;
+        }
 
-		/* Handle syntax error */
-		if (ntok <= 0)
-		{
-			fprintf(stderr, SHELL_SYNTAXERR);
-			continue;
-		}
+        /* Lookup first token in the command table */
+        for (i = 0; i < ncommand; i++)
+        {
+            if (0 == strncmp(commandtab[i].name, tok[0], SHELL_BUFLEN))
+            {
+                break;
+            }
+        }
 
-		/* Lookup first token in the command table */
-		for (i = 0; i < ncommand; i++)
-		{
-			if (0 == strncmp(commandtab[i].name, tok[0], SHELL_BUFLEN))
-			{
-				break;
-			}
-		}
+        /* Handle command not found */
+        if (i >= ncommand)
+        {
+            fprintf(stderr, "%s: command not found\n", tok[0]);
+            continue;
+        }
 
-		/* Handle command not found */
-		if (i >= ncommand)
-		{
-			fprintf(stderr, "%s: command not found\n", tok[0]);
-			continue;
-		}
+        /* Handle command if it is built-in */
+        if (commandtab[i].builtin)
+        {
+            if (inname != NULL || outname != NULL || background)
+            {
+                fprintf(stderr, SHELL_SYNTAXERR);
+            }
+            else
+            {
+                (*commandtab[i].procedure) (ntok, tok);
+            }
+            continue;
+        }
 
-		/* Handle command if it is built-in */
-		if (commandtab[i].builtin)
-		{
-			if (inname != NULL || outname != NULL || background)
-			{
-				fprintf(stderr, SHELL_SYNTAXERR);
-			}
-			else
-			{
-				(*commandtab[i].procedure) (ntok, tok);
-			}
-			continue;
-		}
+        /* Spawn child thread for non-built-in commands */
+        child =
+            create(commandtab[i].procedure,
+                   SHELL_CMDSTK, SHELL_CMDPRIO,
+                   commandtab[i].name, 2, ntok, tok);
 
-		/* Spawn child thread for non-built-in commands */
-		child =
-			create(commandtab[i].procedure,
-				   SHELL_CMDSTK, SHELL_CMDPRIO,
-				   commandtab[i].name, 2, ntok, tok);
+        /* Ensure child command thread was created successfully */
+        if (SYSERR == child)
+        {
+            fprintf(stderr, SHELL_CHILDERR);
+            continue;
+        }
 
-		/* Ensure child command thread was created successfully */
-		if (SYSERR == child)
-		{
-			fprintf(stderr, SHELL_CHILDERR);
-			continue;
-		}
+        /* Set file descriptors for newly created thread */
+        if (NULL == inname)
+        {
+            thrtab[child].fdesc[0] = stdin;
+        }
+        else
+        {
+            thrtab[child].fdesc[0] = getdev(inname);
+        }
+        if (NULL == outname)
+        {
+            thrtab[child].fdesc[1] = stdout;
+        }
+        else
+        {
+            thrtab[child].fdesc[1] = getdev(outname);
+        }
+        thrtab[child].fdesc[2] = stderr;
 
-		/* Set file descriptors for newly created thread */
-		if (NULL == inname)
-		{
-			thrtab[child].fdesc[0] = stdin;
-		}
-		else
-		{
-			// Open the child's stdin
-			fshandle inHandle;
-			errcode err = CreateFile(inname, &inHandle, FSMODE_OPEN, FSACCESS_READ);
-			if (err)
-			{
-				fprintf(stdout, "Error opening input \"%s\"\r\n", inname);
-				continue;
-			}
+        if (background)
+        {
+            /* Make background thread ready, but don't reschedule */
+            im = disable();
+            ready(child, RESCHED_NO);
+            restore(im);
+        }
+        else
+        {
+            /* Clear waiting message; Reschedule; */
+            while (recvclr() != NOMSG);
+            im = disable();
+            ready(child, RESCHED_YES);
+            restore(im);
 
-			thrtab[child].fdesc[0] = inHandle;
-		}
-		if (NULL == outname)
-		{
-			thrtab[child].fdesc[1] = stdout;
-		}
-		else
-		{
-			// Open the child's stdout
-			fshandle outHandle;
-			errcode err = CreateFile(inname, &outHandle, FSMODE_OPEN, FSACCESS_READ);
-			if (err)
-			{
-				fprintf(stdout, "Error opening output \"%s\"\r\n", inname);
-				continue;
-			}
+            /* Wait for command thread to finish */
+            while (receive() != child);
+            sleep(10);
+        }
+    }
 
-			thrtab[child].fdesc[1] = outHandle;
-		}
-		thrtab[child].fdesc[2] = stderr;
-
-		if (background)
-		{
-			/* Make background thread ready, but don't reschedule */
-			im = disable();
-			ready(child, RESCHED_NO);
-			restore(im);
-		}
-		else
-		{
-			/* Clear waiting message; Reschedule; */
-			while (recvclr() != NOMSG);
-			im = disable();
-			ready(child, RESCHED_YES);
-			restore(im);
-
-			/* Wait for command thread to finish */
-			while (receive() != child);
-			sleep(10);
-		}
-	}
-
-	/* Close shell */
-	fprintf(stdout, SHELL_EXIT);
-	sleep(10);
-	return OK;
+    /* Close shell */
+    fprintf(stdout, SHELL_EXIT);
+    sleep(10);
+    return OK;
 }
 
 int shellRead(int dev, char * buf, uint len){

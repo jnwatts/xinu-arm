@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <usb.h>
+#include <part.h>
 #include <string.h>
 #include <unaligned/generic.h>
 #include <unaligned/le_byteshift.h>
-
+#include <ctype.h>
 #define CMD_RET_USAGE -1
+#define CONFIG_USB_STORAGE
 
 /*
  * (C) Copyright 2001
@@ -48,13 +50,12 @@
 #include <stddef.h>
 #include <asm/types.h>
 #include <usb.h>
-#if 0
+
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
 #endif
 #ifdef CONFIG_USB_HOST_ETHER
 static int usb_ether_curr_dev = -1; /* current ethernet device */
-#endif
 #endif
 /* some display routines (info command) */
 static char *usb_get_class_desc(unsigned char dclass)
@@ -224,6 +225,24 @@ static void usb_display_conf_desc(struct usb_configuration_descriptor *config,
 	}
 }
 
+void help(void)
+{
+    printf("USB sub-system\n"
+    		"\tusb start - start (scan) USB controller\n"
+    		"\tusb reset - reset (rescan) USB controller\n"
+    		"\tusb stop [f] - stop USB [f]=force stop\n"
+    		"\tusb tree - show USB device tree\n"
+    		"\tusb info [dev] - show available USB devices\n"
+    		"\tusb storage - show details of USB storage devices\n"
+    		"\tusb dev [dev] - show or set current USB storage device\n"
+    		"\tusb part [dev] - print partition table of one or all USB storage"
+    		" devices\n"
+    		"\tusb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
+    		"\t\tto memory address `addr'\n"
+    		"\tusb write addr blk# cnt - write `cnt' blocks starting at block `blk#'\n"
+    		"\t\tfrom memory address `addr'\r\n");
+}
+
 static void usb_display_if_desc(struct usb_interface_descriptor *ifdesc,
 				struct usb_device *dev)
 {
@@ -365,6 +384,40 @@ static void usb_show_tree(struct usb_device *dev)
 	usb_show_tree_graph(dev, &preamble[0]);
 }
 
+unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
+{
+	unsigned long result = 0,value;
+
+	if (*cp == '0') {
+		cp++;
+		if ((*cp == 'x') && isxdigit(cp[1])) {
+			base = 16;
+			cp++;
+		}
+		if (!base) {
+			base = 8;
+		}
+	}
+	if (!base) {
+		base = 10;
+	}
+	while (isxdigit(*cp) && (value = isdigit(*cp) ? *cp-'0' : (islower(*cp)
+	    ? toupper(*cp) : *cp)-'A'+10) < base) {
+		result = result*base + value;
+		cp++;
+	}
+	if (endp)
+		*endp = (char *)cp;
+	return result;
+}
+
+long simple_strtol(const char *cp,char **endp,unsigned int base)
+{
+	if(*cp=='-')
+		return -simple_strtoul(cp+1,endp,base);
+	return simple_strtoul(cp,endp,base);
+}
+
 
 /******************************************************************************
  * usb command intepreter
@@ -375,37 +428,29 @@ shellcmd xsh_usb(int argc, char * const argv[])
 	int i;
 	struct usb_device *dev = NULL;
 	extern char usb_started;
-//#ifdef CONFIG_USB_STORAGE
-	//block_dev_desc_t *stor_dev;
-//#endif
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
-
-	/*if ((strncmp(argv[1], "reset", 5) == 0) ||
-		 (strncmp(argv[1], "start", 5) == 0)) {
-		bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
-		usb_stop();
-		printf("(Re)start USB...\n"); */
-	if ((strncmp(argv[1], "reset", 5) == 0) ||
-		 (strncmp(argv[1], "start", 5) == 0)){
-		 usb_stop();
-		kprintf("(Re)start USB...\n");
-		if (usb_init() >= 0) {
 #ifdef CONFIG_USB_STORAGE
-			/* try to recognize storage devices immediately */
-			usb_stor_curr_dev = usb_stor_scan(1);
+	block_dev_desc_t *stor_dev;
 #endif
-#ifdef CONFIG_USB_HOST_ETHER
-			/* try to recognize ethernet devices immediately */
-			usb_ether_curr_dev = usb_host_eth_scan(1);
-#endif
-#ifdef CONFIG_USB_KEYBOARD
-			drv_usb_kbd_init();
-#endif
+
+	if ((strncmp(argv[1], "reset", 5) == 0) ||
+			 (strncmp(argv[1], "start", 5) == 0)) {
+			usb_stop();
+			printf("(Re)start USB...\n");
+			if (usb_init() >= 0) {
+	#ifdef CONFIG_USB_STORAGE
+				/* try to recognize storage devices immediately */
+				usb_stor_curr_dev = usb_stor_scan(1);
+	#endif
+	#ifdef CONFIG_USB_HOST_ETHER
+				/* try to recognize ethernet devices immediately */
+				usb_ether_curr_dev = usb_host_eth_scan(1);
+	#endif
+	#ifdef CONFIG_USB_KEYBOARD
+				drv_usb_kbd_init();
+	#endif
+			}
+			return 0;
 		}
-		return 0;
-	}
 	if (strncmp(argv[1], "stop", 4) == 0) {
 #ifdef CONFIG_USB_KEYBOARD
 		if (argc == 2) {
@@ -424,6 +469,11 @@ shellcmd xsh_usb(int argc, char * const argv[])
 		usb_stop();
 		return 0;
 	}
+
+	if (strncmp(argv[1], "help", 4) == 0) {
+		help();
+		return 0;
+	}
 	if (!usb_started) {
 		printf("USB is stopped. Please issue 'usb start' first.\n");
 		return 1;
@@ -439,7 +489,6 @@ shellcmd xsh_usb(int argc, char * const argv[])
 		}
 		return 0;
 	}
-	#if 0
 	if (strncmp(argv[1], "inf", 3) == 0) {
 		int d;
 		if (argc == 2) {
@@ -473,12 +522,12 @@ shellcmd xsh_usb(int argc, char * const argv[])
 		}
 		return 0;
 	}
-	#endif
 #ifdef CONFIG_USB_STORAGE
 	if (strncmp(argv[1], "stor", 4) == 0)
 		return usb_stor_info();
-
+#if 0
 	if (strncmp(argv[1], "part", 4) == 0) {
+
 		int devno, ok = 0;
 		if (argc == 2) {
 			for (devno = 0; ; ++devno) {
@@ -489,7 +538,7 @@ shellcmd xsh_usb(int argc, char * const argv[])
 					ok++;
 					if (devno)
 						printf("\n");
-					debug("print_part of %x\n", devno);
+					USB_PRINTF("print_part of %x\n", devno);
 					print_part(stor_dev);
 				}
 			}
@@ -499,21 +548,57 @@ shellcmd xsh_usb(int argc, char * const argv[])
 			if (stor_dev != NULL &&
 			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
-				debug("print_part of %x\n", devno);
+				USB_PRINTF("print_part of %x\n", devno);
 				print_part(stor_dev);
+
 			}
 		}
+
 		if (!ok) {
 			printf("\nno USB devices available\n");
 			return 1;
 		}
+
 		return 0;
 	}
-	if (strcmp(argv[1], "read") == 0) {
+#endif
+	if (strncmp(argv[1], "read",4) == 0) {
 		if (usb_stor_curr_dev < 0) {
-			printf("no current device selected\n");
+			kprintf("no current device selected\n");
 			return 1;
 		}
+		if (argc ==4) {
+			unsigned long blk  = simple_strtoul(argv[2], NULL, 16);
+			unsigned long cnt  = simple_strtoul(argv[3], NULL, 16);
+			unsigned long n;
+
+			kprintf("\nUSB read: device %d block # %d, count %d"
+				" ... ", usb_stor_curr_dev, blk, cnt);
+			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			char buffer[stor_dev->blksz * cnt];
+			n = stor_dev->block_read(usb_stor_curr_dev, blk, cnt,
+						 &buffer);
+			kprintf("%d blocks read: %s\n", n,
+				(n == cnt) ? "OK" : "ERROR");
+
+			if (n == cnt){
+				int i = 0;
+				kprintf("Data:\r\n");
+				for(i = 0;i <50;i++){
+					kprintf("%s",buffer[i]);
+				}
+				kprintf("\r\n");
+				return 0;
+			}
+			return 1;
+
+
+		} else {
+			help();
+			return 1;
+		}
+
+
 		if (argc == 5) {
 			unsigned long addr = simple_strtoul(argv[2], NULL, 16);
 			unsigned long blk  = simple_strtoul(argv[3], NULL, 16);
@@ -531,7 +616,9 @@ shellcmd xsh_usb(int argc, char * const argv[])
 			return 1;
 		}
 	}
-	if (strcmp(argv[1], "write") == 0) {
+	if (strncmp(argv[1], "write",5) == 0) {
+		printf("disabled\r\n");
+# if 0
 		if (usb_stor_curr_dev < 0) {
 			printf("no current device selected\n");
 			return 1;
@@ -552,25 +639,26 @@ shellcmd xsh_usb(int argc, char * const argv[])
 				return 0;
 			return 1;
 		}
+#endif
 	}
 	if (strncmp(argv[1], "dev", 3) == 0) {
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
-			printf("\nUSB device %d: ", dev);
+			kprintf("\nUSB device %d: ", dev);
 			stor_dev = usb_stor_get_dev(dev);
 			if (stor_dev == NULL) {
-				printf("unknown device\n");
+				kprintf("unknown device\r\n");
 				return 1;
 			}
-			printf("\n    Device %d: ", dev);
+			kprintf("\nUSB Device %d: \r\n", dev);
 			dev_print(stor_dev);
 			if (stor_dev->type == DEV_TYPE_UNKNOWN)
 				return 1;
 			usb_stor_curr_dev = dev;
-			printf("... is now current device\n");
+			kprintf("... is now current device\r\n");
 			return 0;
 		} else {
-			printf("\nUSB device %d: ", usb_stor_curr_dev);
+			kprintf("\n---Current Device---\r\nUSB device %d: \r\n", usb_stor_curr_dev);
 			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
 			dev_print(stor_dev);
 			if (stor_dev->type == DEV_TYPE_UNKNOWN)
@@ -580,11 +668,14 @@ shellcmd xsh_usb(int argc, char * const argv[])
 		return 0;
 	}
 #endif /* CONFIG_USB_STORAGE */
-	return CMD_RET_USAGE;
+		help();
+	return 0;
 }
 
+
+
 #ifdef CONFIG_USB_STORAGE
-U_BOOT_CMD(
+/*U_BOOT_CMD(
 	usb,	5,	1,	do_usb,
 	"USB sub-system",
 	"start - start (scan) USB controller\n"
@@ -600,7 +691,9 @@ U_BOOT_CMD(
 	"    to memory address `addr'\n"
 	"usb write addr blk# cnt - write `cnt' blocks starting at block `blk#'\n"
 	"    from memory address `addr'"
-);
+);*/
+
+
 
 #else
 /*U_BOOT_CMD(
@@ -612,6 +705,7 @@ U_BOOT_CMD(
 	"usb info [dev] - show available USB devices"
 );*/
 #endif
+
 
 
 

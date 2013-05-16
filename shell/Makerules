@@ -34,7 +34,7 @@ C_FILES += xsh_tar.c
 C_FILES += xsh_flashstat.c
 
 # USB commans
-C_FILES += xsh_usbStart.c xsh_kbdStart.c xsh_usb.c
+C_FILES += xsh_usb.c
 
 # NVRAM commands
 C_FILES += xsh_nvram.c

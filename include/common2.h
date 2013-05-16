@@ -119,6 +119,12 @@
 
 #define isprint(x) (1)
 
+#define uswap_32(x) \
+	((((x) & 0xff000000) >> 24) | \
+	 (((x) & 0x00ff0000) >>  8) | \
+	 (((x) & 0x0000ff00) <<  8) | \
+	 (((x) & 0x000000ff) << 24))
+
 #if BYTE_ORDER == LITTLE_ENDIAN
 # define cpu_to_le16(x)		(x)
 # define cpu_to_le32(x)		(x)

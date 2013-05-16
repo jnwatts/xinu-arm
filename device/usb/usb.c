@@ -13,9 +13,6 @@
 #include <unaligned/le_byteshift.h>
 #include "../system/platforms/raspberry-pi/gpio.h"
 
-#undef USB_PRINTF
-#define USB_PRINTF kprintf
-
 #ifdef DEBUG
 #define USB_DEBUG	1
 #define USB_HUB_DEBUG	1

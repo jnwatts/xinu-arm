@@ -12,13 +12,13 @@
 
 #undef DWC_OTG_DEBUG
 
-/*#ifdef DWC_OTG_DEBUG*/
+#ifdef DWC_OTG_DEBUG
 	#define PDEBUG(fmt, args...) \
 		kprintf("\r\n[%s:%d] " fmt, \
 			__PRETTY_FUNCTION__, __LINE__ , ## args)
-/*#else
-        #define PDEBUG(fmt, args...) do {} while(0)@
-#endif*/
+#else
+    #define PDEBUG(fmt, args...) do {} while(0)
+#endif
 
 void dwc_write_reg32(volatile uint32_t *addr, uint32_t value)
 {
@@ -107,8 +107,8 @@ int dwc_otg_set_param_otg_cap(dwc_otg_core_if_t * core_if, int32_t val)
 	int valid;
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 2)) {
-		kprintf("warning: Wrong value for otg_cap parameter\n");
-		kprintf("warning: otg_cap parameter must be 0,1 or 2\r\n");
+		PDEBUG("warning: Wrong value for otg_cap parameter\n");
+		PDEBUG("warning: otg_cap parameter must be 0,1 or 2\r\n");
 		retval = -1;
 		goto out;
 	}
@@ -169,7 +169,7 @@ int32_t dwc_otg_get_param_otg_cap(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_opt(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for opt parameter\n");
+		PDEBUG("warning: Wrong value for opt parameter\n");
 		return -1;
 	}
 	core_if->core_params->opt = val;
@@ -185,7 +185,7 @@ int dwc_otg_set_param_dma_enable(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for dma enable\r\n");
+		PDEBUG("warning: Wrong value for dma enable\r\n");
 		return -1;
 	}
 
@@ -215,8 +215,8 @@ int dwc_otg_set_param_dma_desc_enable(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for dma_enable\r\n");
-		kprintf("warning: dma_desc_enable must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong value for dma_enable\r\n");
+		PDEBUG("warning: dma_desc_enable must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -245,8 +245,8 @@ int dwc_otg_set_param_host_support_fs_ls_low_power(dwc_otg_core_if_t * core_if,
 						   int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for host_support_fs_low_power\n");
-		kprintf("warning: host_support_fs_low_power must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong value for host_support_fs_low_power\n");
+		PDEBUG("warning: host_support_fs_low_power must be 0 or 1\r\n");
 		return -1;
 	}
 	core_if->core_params->host_support_fs_ls_low_power = val;
@@ -264,8 +264,8 @@ int dwc_otg_set_param_enable_dynamic_fifo(dwc_otg_core_if_t * core_if,
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for enable_dynamic_fifo\r\n");
-		kprintf("warning: enable_dynamic_fifo must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong value for enable_dynamic_fifo\r\n");
+		PDEBUG("warning: enable_dynamic_fifo must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -292,8 +292,8 @@ int dwc_otg_set_param_data_fifo_size(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 32, 32768)) {
-		kprintf("warning: Wrong value for data_fifo_size\r\n");
-		kprintf("warning: data_fifo_size must be 32-32768\r\n");
+		PDEBUG("warning: Wrong value for data_fifo_size\r\n");
+		PDEBUG("warning: data_fifo_size must be 32-32768\r\n");
 		return -1;
 	}
 
@@ -321,14 +321,14 @@ int dwc_otg_set_param_dev_rx_fifo_size(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 16, 32768)) {
-		kprintf("warning: Wrong value for dev_rx_fifo_size\r\n");
-		kprintf("warning: dev_rx_fifo_size must be 16-32768\r\n");
+		PDEBUG("warning: Wrong value for dev_rx_fifo_size\r\n");
+		PDEBUG("warning: dev_rx_fifo_size must be 16-32768\r\n");
 		return -1;
 	}
 
 	if (val > dwc_read_reg32(&core_if->core_global_regs->grxfsiz)) {
 		if(dwc_otg_param_initialized(core_if->core_params->dev_rx_fifo_size)) {
-		kprintf("warning: %d invalid for dev_rx_fifo_size parameter\n", val);
+		PDEBUG("warning: %d invalid for dev_rx_fifo_size parameter\n", val);
 		}
 		val = dwc_read_reg32(&core_if->core_global_regs->grxfsiz);
 		retval = -1;
@@ -349,8 +349,8 @@ int dwc_otg_set_param_dev_nperio_tx_fifo_size(dwc_otg_core_if_t * core_if,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 16, 32768)) {
-		kprintf("warning: Wrong value for dev_nperio_tx_fifo\r\n");
-		kprintf("warning: dev_nperio_tx_fifo must be 16-32768\r\n");
+		PDEBUG("warning: Wrong value for dev_nperio_tx_fifo\r\n");
+		PDEBUG("warning: dev_nperio_tx_fifo must be 16-32768\r\n");
 		return -1;
 	}
 
@@ -382,8 +382,8 @@ int dwc_otg_set_param_host_rx_fifo_size(dwc_otg_core_if_t * core_if,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 16, 32768)) {
-		kprintf("warning: Wrong value for host_rx_fifo_size\r\n");
-		kprintf("warning: host_rx_fifo_size must be 16-32768\r\n");
+		PDEBUG("warning: Wrong value for host_rx_fifo_size\r\n");
+		PDEBUG("warning: host_rx_fifo_size must be 16-32768\r\n");
 		return -1;
 	}
 
@@ -414,8 +414,8 @@ int dwc_otg_set_param_host_nperio_tx_fifo_size(dwc_otg_core_if_t * core_if,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 16, 32768)) {
-		kprintf("warning: Wrong value for host_nperio_tx_fifo_size\r\n");
-		kprintf("warning: host_nperio_tx_fifo_size must be 16-32768\r\n");
+		PDEBUG("warning: Wrong value for host_nperio_tx_fifo_size\r\n");
+		PDEBUG("warning: host_nperio_tx_fifo_size must be 16-32768\r\n");
 		return -1;
 	}
 
@@ -446,8 +446,8 @@ int dwc_otg_set_param_host_perio_tx_fifo_size(dwc_otg_core_if_t * core_if,
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 16, 32768)) {
-		kprintf("warning: Wrong value for host_perio_tx_fifo_size\r\n");
-		kprintf("warning: host_perio_tx_fifo_size must be 16-32768\r\n");
+		PDEBUG("warning: Wrong value for host_perio_tx_fifo_size\r\n");
+		PDEBUG("warning: host_perio_tx_fifo_size must be 16-32768\r\n");
 		return -1;
 	}
 
@@ -480,8 +480,8 @@ int dwc_otg_set_param_max_transfer_size(dwc_otg_core_if_t * core_if,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 2047, 524288)) {
-		kprintf("warning: Wrong value for max_transfer_size\r\n");
-		kprintf("warning: max_transfer_size must be 2047-524288\r\n");
+		PDEBUG("warning: Wrong value for max_transfer_size\r\n");
+		PDEBUG("warning: max_transfer_size must be 2047-524288\r\n");
 		return -1;
 	}
 
@@ -512,8 +512,8 @@ int dwc_otg_set_param_max_packet_count(dwc_otg_core_if_t * core_if, int32_t val)
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 15, 511)) {
-		kprintf("warning: Wrong value for max_packet_count\r\n");
-		kprintf("warning: max_packet_count must be 15-511\r\n");
+		PDEBUG("warning: Wrong value for max_packet_count\r\n");
+		PDEBUG("warning: max_packet_count must be 15-511\r\n");
 		return -1;
 	}
 
@@ -543,8 +543,8 @@ int dwc_otg_set_param_host_channels(dwc_otg_core_if_t * core_if, int32_t val)
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 1, 16)) {
-		kprintf("warning: Wrong value for host_channels\r\n");
-		kprintf("warning: host_channels must be 1-16\r\n");
+		PDEBUG("warning: Wrong value for host_channels\r\n");
+		PDEBUG("warning: host_channels must be 1-16\r\n");
 		return -1;
 	}
 
@@ -573,8 +573,8 @@ int dwc_otg_set_param_dev_endpoints(dwc_otg_core_if_t * core_if, int32_t val)
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 1, 15)) {
-		kprintf("warning: Wrong value for dev_endpoints\r\n");
-		kprintf("warning: dev_endpoints must be 1-15\r\n");
+		PDEBUG("warning: Wrong value for dev_endpoints\r\n");
+		PDEBUG("warning: dev_endpoints must be 1-15\r\n");
 		return -1;
 	}
 
@@ -604,8 +604,8 @@ int dwc_otg_set_param_phy_type(dwc_otg_core_if_t * core_if, int32_t val)
 	int valid = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 0, 2)) {
-		kprintf("warning: Wrong value for phy_type\r\n");
-		kprintf("warning: phy_type must be 0,1 or 2\r\n");
+		PDEBUG("warning: Wrong value for phy_type\r\n");
+		PDEBUG("warning: phy_type must be 0,1 or 2\r\n");
 		return -1;
 	}
 #ifndef NO_FS_PHY_HW_CHECKS
@@ -651,8 +651,8 @@ int dwc_otg_set_param_speed(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for speed parameter\n");
-		kprintf("warning: max_speed parameter must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong value for speed parameter\n");
+		PDEBUG("warning: max_speed parameter must be 0 or 1\r\n");
 		return -1;
 	}
 	if ((val == 0)
@@ -682,9 +682,9 @@ int dwc_otg_set_param_host_ls_low_power_phy_clk(dwc_otg_core_if_t * core_if,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf
+		PDEBUG
 		    ("warning: Wrong value for host_ls_low_power_phy_clk parameter\n");
-		kprintf("warning: host_ls_low_power_phy_clk must be 0 or 1\r\n");
+		PDEBUG("warning: host_ls_low_power_phy_clk must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -714,8 +714,8 @@ int32_t dwc_otg_get_param_host_ls_low_power_phy_clk(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_phy_ulpi_ddr(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for phy_ulpi_ddr\n");
-		kprintf("warning: phy_upli_ddr must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong value for phy_ulpi_ddr\n");
+		PDEBUG("warning: phy_upli_ddr must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -732,8 +732,8 @@ int dwc_otg_set_param_phy_ulpi_ext_vbus(dwc_otg_core_if_t * core_if,
 					int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong valaue for phy_ulpi_ext_vbus\r\n");
-		kprintf("warning: phy_ulpi_ext_vbus must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong valaue for phy_ulpi_ext_vbus\r\n");
+		PDEBUG("warning: phy_ulpi_ext_vbus must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -749,8 +749,8 @@ int32_t dwc_otg_get_param_phy_ulpi_ext_vbus(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_phy_utmi_width(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 8, 8) && DWC_OTG_PARAM_TEST(val, 16, 16)) {
-		kprintf("warning: Wrong valaue for phy_utmi_width\r\n");
-		kprintf("warning: phy_utmi_width must be 8 or 16\r\n");
+		PDEBUG("warning: Wrong valaue for phy_utmi_width\r\n");
+		PDEBUG("warning: phy_utmi_width must be 8 or 16\r\n");
 		return -1;
 	}
 
@@ -766,8 +766,8 @@ int32_t dwc_otg_get_param_phy_utmi_width(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_ulpi_fs_ls(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong valaue for ulpi_fs_ls\r\n");
-		kprintf("warning: ulpi_fs_ls must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong valaue for ulpi_fs_ls\r\n");
+		PDEBUG("warning: ulpi_fs_ls must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -783,8 +783,8 @@ int32_t dwc_otg_get_param_ulpi_fs_ls(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_ts_dline(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong valaue for ts_dline\r\n");
-		kprintf("warning: ts_dline must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong valaue for ts_dline\r\n");
+		PDEBUG("warning: ts_dline must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -801,8 +801,8 @@ int dwc_otg_set_param_i2c_enable(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong valaue for i2c_enable\r\n");
-		kprintf("warning: i2c_enable must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong valaue for i2c_enable\r\n");
+		PDEBUG("warning: i2c_enable must be 0 or 1\r\n");
 		return -1;
 	}
 #ifndef NO_FS_PHY_HW_CHECK
@@ -831,8 +831,8 @@ int dwc_otg_set_param_dev_perio_tx_fifo_size(dwc_otg_core_if_t * core_if,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 4, 768)) {
-		kprintf("warning: Wrong value for dev_perio_tx_fifo_size\r\n");
-		kprintf("warning: dev_perio_tx_fifo_size must be 4-768\r\n");
+		PDEBUG("warning: Wrong value for dev_perio_tx_fifo_size\r\n");
+		PDEBUG("warning: dev_perio_tx_fifo_size must be 4-768\r\n");
 		return -1;
 	}
 
@@ -860,8 +860,8 @@ int dwc_otg_set_param_en_multiple_tx_fifo(dwc_otg_core_if_t * core_if,
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong valaue for en_multiple_tx_fifo,\r\n");
-		kprintf("warning: en_multiple_tx_fifo must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong valaue for en_multiple_tx_fifo,\r\n");
+		PDEBUG("warning: en_multiple_tx_fifo must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -889,8 +889,8 @@ int dwc_otg_set_param_dev_tx_fifo_size(dwc_otg_core_if_t * core_if, int32_t val,
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 4, 768)) {
-		kprintf("warning: Wrong value for dev_tx_fifo_size\r\n");
-		kprintf("warning: dev_tx_fifo_size must be 4-768\r\n");
+		PDEBUG("warning: Wrong value for dev_tx_fifo_size\r\n");
+		PDEBUG("warning: dev_tx_fifo_size must be 4-768\r\n");
 		return -1;
 	}
 
@@ -918,8 +918,8 @@ int dwc_otg_set_param_thr_ctl(dwc_otg_core_if_t * core_if, int32_t val)
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 0, 7)) {
-		kprintf("warning: Wrong value for thr_ctl\r\n");
-		kprintf("warning: thr_ctl must be 0-7\r\n");
+		PDEBUG("warning: Wrong value for thr_ctl\r\n");
+		PDEBUG("warning: thr_ctl must be 0-7\r\n");
 		return -1;
 	}
 
@@ -948,8 +948,8 @@ int dwc_otg_set_param_lpm_enable(dwc_otg_core_if_t * core_if, int32_t val)
 	int retval = 0;
 
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: Wrong value for lpm_enable\r\n");
-		kprintf("warning: lpm_enable must be 0 or 1\r\n");
+		PDEBUG("warning: Wrong value for lpm_enable\r\n");
+		PDEBUG("warning: lpm_enable must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -974,8 +974,8 @@ int32_t dwc_otg_get_param_lpm_enable(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_tx_thr_length(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 8, 128)) {
-		kprintf("warning: Wrong valaue for tx_thr_length\r\n");
-		kprintf("warning: tx_thr_length must be 8 - 128\r\n");
+		PDEBUG("warning: Wrong valaue for tx_thr_length\r\n");
+		PDEBUG("warning: tx_thr_length must be 8 - 128\r\n");
 		return -1;
 	}
 
@@ -991,8 +991,8 @@ int32_t dwc_otg_get_param_tx_thr_length(dwc_otg_core_if_t * core_if)
 int dwc_otg_set_param_rx_thr_length(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	if (DWC_OTG_PARAM_TEST(val, 8, 128)) {
-		kprintf("warning: Wrong valaue for rx_thr_length\r\n");
-		kprintf("warning: rx_thr_length must be 8 - 128\r\n");
+		PDEBUG("warning: Wrong valaue for rx_thr_length\r\n");
+		PDEBUG("warning: rx_thr_length must be 8 - 128\r\n");
 		return -1;
 	}
 
@@ -1015,7 +1015,7 @@ int dwc_otg_set_param_dma_burst_size(dwc_otg_core_if_t * core_if, int32_t val)
 	    DWC_OTG_PARAM_TEST(val, 64, 64) &&
 	    DWC_OTG_PARAM_TEST(val, 128, 128) &&
 	    DWC_OTG_PARAM_TEST(val, 256, 256)) {
-		kprintf("warning: `%d' invalid for parameter `dma_burst_size'\r\n", val);
+		PDEBUG("warning: `%d' invalid for parameter `dma_burst_size'\r\n", val);
 		return -1;
 	}
 	core_if->core_params->dma_burst_size = val;
@@ -1031,7 +1031,7 @@ int dwc_otg_set_param_pti_enable(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: `%d' invalid for parameter `pti_enable'\r\n", val);
+		PDEBUG("warning: `%d' invalid for parameter `pti_enable'\r\n", val);
 		return -1;
 	}
 	if (val && (core_if->snpsid < OTG_CORE_REV_2_72a)) {
@@ -1055,7 +1055,7 @@ int dwc_otg_set_param_mpi_enable(dwc_otg_core_if_t * core_if, int32_t val)
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: `%d' invalid for parameter `mpi_enable'\r\n", val);
+		PDEBUG("warning: `%d' invalid for parameter `mpi_enable'\r\n", val);
 		return -1;
 	}
 	if (val && (core_if->hwcfg2.b.multi_proc_int == 0)) {
@@ -1080,8 +1080,8 @@ int dwc_otg_set_param_ic_usb_cap(dwc_otg_core_if_t * core_if,
 {
 	int retval = 0;
 	if (DWC_OTG_PARAM_TEST(val, 0, 1)) {
-		kprintf("warning: `%d' invalid for parameter `ic_usb_cap'\r\n", val);
-		kprintf("warning: ic_usb_cap must be 0 or 1\r\n");
+		PDEBUG("warning: `%d' invalid for parameter `ic_usb_cap'\r\n", val);
+		PDEBUG("warning: ic_usb_cap must be 0 or 1\r\n");
 		return -1;
 	}
 
@@ -1107,8 +1107,8 @@ int dwc_otg_set_param_ahb_thr_ratio(dwc_otg_core_if_t * core_if, int32_t val)
 	int valid = 1;
 
 	if(DWC_OTG_PARAM_TEST(val, 0, 3)) {
-		kprintf("warning: `%d' invalid for parameter `ahb_thr_ratio'\r\n", val);
-		kprintf("warning: ahb_thr_ratio must be 0 - 3\r\n");
+		PDEBUG("warning: `%d' invalid for parameter `ahb_thr_ratio'\r\n", val);
+		PDEBUG("warning: ahb_thr_ratio must be 0 - 3\r\n");
 		return -1;
 	}
 
@@ -1580,7 +1580,7 @@ void dwc_otg_cil_init(dwc_otg_core_if_t *core_if, const uint32_t * reg_base_addr
 
 	core_if->snpsid = dwc_read_reg32(&core_if->core_global_regs->gsnpsid);
 
-	kprintf("Core Release: %x.%x%x%x\r\n",
+	PDEBUG("Core Release: %x.%x%x%x\r\n",
 		   (core_if->snpsid >> 12 & 0xF),
 		   (core_if->snpsid >> 8 & 0xF),
 		   (core_if->snpsid >> 4 & 0xF), (core_if->snpsid & 0xF));
@@ -1635,7 +1635,7 @@ void dwc_otg_flush_tx_fifo(dwc_otg_core_if_t * core_if, const int num)
 	do {
 		greset.d32 = dwc_read_reg32(&global_regs->grstctl);
 		if (++count > 10000) {
-			kprintf("%s() HANG! GRSTCTL=%0x GNPTXSTS=0x%08x\r\n",
+			PDEBUG("%s() HANG! GRSTCTL=%0x GNPTXSTS=0x%08x\r\n",
 				 __func__, greset.d32,
 				 dwc_read_reg32(&global_regs->gnptxsts));
 			break;
@@ -1668,7 +1668,7 @@ void dwc_otg_flush_rx_fifo(dwc_otg_core_if_t * core_if)
 	do {
 		greset.d32 = dwc_read_reg32(&global_regs->grstctl);
 		if (++count > 10000) {
-			kprintf("%s() HANG! GRSTCTL=%0x\r\n", __func__,
+			PDEBUG("%s() HANG! GRSTCTL=%0x\r\n", __func__,
 				 greset.d32);
 			break;
 		}
@@ -1809,12 +1809,12 @@ void dwc_otg_core_host_init(dwc_otg_core_if_t * core_if)
 			hcchar.b.chdis = 1;
 			hcchar.b.epdir = 0;
 			dwc_write_reg32(&hc_regs->hcchar, hcchar.d32);
-			kprintf("%s: Halt channel %d regs %p\r\n", __func__, i, hc_regs);
+			PDEBUG("%s: Halt channel %d regs %p\r\n", __func__, i, hc_regs);
 			do {
 				hcchar.d32 = dwc_read_reg32(&hc_regs->hcchar);
 				if (++count > 1000000) {
-					kprintf
-					    ("%s: Unable to clear halt on channel %d (timeout HCCHAR 0x%X @%p)\r\n",
+					PDEBUG
+					    ("%s: Unable to clear halt on channel %d (timeout HCCHAR 0x%X %p)\r\n",
 					     __func__, i, hcchar.d32, &hc_regs->hcchar);
 					break;
 				}
@@ -1851,7 +1851,7 @@ void dwc_otg_core_reset(dwc_otg_core_if_t * core_if)
 		udelay(10);
 		greset.d32 = dwc_read_reg32(&global_regs->grstctl);
 		if (++count > 100000) {
-			kprintf("%s() HANG! AHB Idle GRSTCTL=%0x\r\n", __func__,
+			PDEBUG("%s() HANG! AHB Idle GRSTCTL=%0x\r\n", __func__,
 				 greset.d32);
 			return;
 		}
@@ -1865,7 +1865,7 @@ void dwc_otg_core_reset(dwc_otg_core_if_t * core_if)
 	do {
 		greset.d32 = dwc_read_reg32(&global_regs->grstctl);
 		if (++count > 1000000) {
-			kprintf("%s() HANG! Soft Reset GRSTCTL=%0x\r\n",
+			PDEBUG("%s() HANG! Soft Reset GRSTCTL=%0x\r\n",
 				 __func__, greset.d32);
 			break;
 		}
