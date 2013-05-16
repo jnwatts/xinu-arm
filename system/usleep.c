@@ -21,7 +21,7 @@ extern void clkdelay(ulong cycles);
  */
 void usleep(ulong usec)
 {
-    clkdelay((usec * platform.clkfreq) / CLKTICKS_PER_SEC);
+	clkdelay(usec);
 }
 
 
