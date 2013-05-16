@@ -27,8 +27,6 @@ const struct centry commandtab[] = {
 	{"printprocstks", FALSE, xsh_printprocstks},
 	{"ledon", FALSE, xsh_ledon},
 	{"ledoff", FALSE, xsh_ledoff},
-	{"usbStart", FALSE, xsh_usbStart},
-	{"kbdStart", FALSE, xsh_kbdStart},
 	{"usb", FALSE, xsh_usb},
 
 	{"cd", TRUE, xsh_cd},
